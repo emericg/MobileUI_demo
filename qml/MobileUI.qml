@@ -13,17 +13,7 @@ ApplicationWindow {
     color: colorBackground
     visible: true
 
-    property bool isHdpi: (utilsScreen.screenDpi >= 128 || utilsScreen.screenPar >= 2.0)
-    property bool isDesktop: (Qt.platform.os !== "ios" && Qt.platform.os !== "android")
-    property bool isMobile: (Qt.platform.os === "ios" || Qt.platform.os === "android")
-    property bool isPhone: ((Qt.platform.os === "ios" || Qt.platform.os === "android") && (utilsScreen.screenSize < 7.0))
-    property bool isTablet: ((Qt.platform.os === "ios" || Qt.platform.os === "android") && (utilsScreen.screenSize >= 7.0))
-
-    // Mobile stuff ////////////////////////////////////////////////////////////
-
     property string colorBackground: "#eee"
-
-    // Mobile stuff ////////////////////////////////////////////////////////////
 
     property int screenPaddingStatusbar: 0
     property int screenPaddingNavbar: 0
@@ -42,6 +32,7 @@ ApplicationWindow {
     onVisibilityChanged: handleSafeAreas()
 
     function handleSafeAreas() {
+        // safe areas handling is a work in progress
         // safe areas are only taken into account when using maximized geometry / full screen mode
         if (appWindow.visibility === ApplicationWindow.FullScreen ||
             appWindow.flags & Qt.MaximizeUsingFullscreenGeometryHint) {
@@ -103,12 +94,6 @@ ApplicationWindow {
         navbarColor: "grey"
     }
 
-    // Events handling /////////////////////////////////////////////////////////
-
-    Component.onCompleted: {
-        //
-    }
-
     Connections {
         target: Qt.application
         function onStateChanged() {
@@ -124,34 +109,20 @@ ApplicationWindow {
                     break
                 case Qt.ApplicationActive:
                     //console.log("Qt.ApplicationActive")
+
+                    // you should probably not switch your app theme while it's being used,
+                    // only during an interaction like the app being brought back to the foreground,
+                    // so this is a good place to check if the device theme has changed while on the background
+                    deviceThemeButton.update()
+
                     break
             }
         }
     }
 
-    // User generated events handling //////////////////////////////////////////
-
-    function backAction() {
-        if (exitTimer.running)
-            Qt.quit()
-        else
-            exitTimer.start()
-    }
-    function forwardAction() {
-        //
-    }
-
-    // QML /////////////////////////////////////////////////////////////////////
-
     Item {
         id: appContent
         anchors.fill: parent
-
-        Keys.onBackPressed: backAction()
-
-        Component.onCompleted: {
-            //
-        }
 
         ////
 
@@ -225,7 +196,7 @@ ApplicationWindow {
 
         ////
 
-        ComboBox {
+        ComboBox { // this combobox handle the status bar theme
             anchors.top: parent.top
             anchors.topMargin: 16 + screenPaddingStatusbar + screenPaddingTop
             anchors.left: parent.left
@@ -242,7 +213,6 @@ ApplicationWindow {
             }
 
             onActivated: {
-                console.log("> " + currentText)
                 mobileUI.statusbarColor = currentText
             }
         }
@@ -254,12 +224,15 @@ ApplicationWindow {
             spacing: 16
 
             Button {
+                id: deviceThemeButton
                 anchors.horizontalCenter: parent.horizontalCenter
 
-                text: "device theme (%1)".arg(mobileUI.deviceTheme ? "dark" : "light")
-                onClicked: {
-                    console.log("mobileUI.getDeviceTheme(%1)".arg(mobileUI.deviceTheme))
-                    text = "device theme (%1)".arg(mobileUI.deviceTheme ? "dark" : "light")
+                visible: (Qt.platform.os === "android")
+                text: "device theme (?)"
+                onClicked: update()
+
+                function update() {
+                    deviceThemeButton.text = "device theme (%1)".arg(mobileUI.deviceTheme ? "dark" : "light")
                 }
             }
 
@@ -269,7 +242,6 @@ ApplicationWindow {
                 text: "keep screen on (disabled)"
 
                 onClicked: {
-                    console.log("mobileUI.setScreenKeepOn(%1)".arg(!mobileUI.screenAlwaysOn))
                     mobileUI.setScreenKeepOn(!mobileUI.screenAlwaysOn)
                     text = "keep screen on (%1)".arg(mobileUI.screenAlwaysOn ? "enabled" : "disabled")
                 }
@@ -282,8 +254,6 @@ ApplicationWindow {
                 Button {
                     text: "regular"
                     onClicked: {
-                        appWindow.visibility = Window.FullScreen
-
                         appWindow.flags = Qt.Window
                         appWindow.visibility = Window.Windowed
                     }
@@ -291,8 +261,6 @@ ApplicationWindow {
                 Button {
                     text: "maximized"
                     onClicked: {
-                        appWindow.visibility = Window.FullScreen
-
                         appWindow.flags = Qt.Window | Qt.MaximizeUsingFullscreenGeometryHint
                         appWindow.visibility = Window.Windowed
                     }
@@ -312,7 +280,7 @@ ApplicationWindow {
 
                 Button {
                     text: "left"
-                    onClicked: mobileUI.lockScreenOrientation(MobileUI.Landscape)
+                    onClicked: mobileUI.lockScreenOrientation(MobileUI.Landscape_left)
                 }
                 Button {
                     text: "up"
@@ -342,13 +310,15 @@ ApplicationWindow {
 
         ////
 
-        ComboBox {
+        ComboBox { // this combobox handle the navigation bar theme
             anchors.left: parent.left
             anchors.leftMargin: 16
             anchors.right: parent.right
             anchors.rightMargin: 16
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 16 + screenPaddingNavbar + screenPaddingBottom
+
+            visible: (Qt.platform.os === "android")
 
             model: ListModel {
                 id: cbNavbarColor
@@ -359,11 +329,10 @@ ApplicationWindow {
             }
 
             onActivated: {
-                console.log("> " + currentText)
                 mobileUI.navbarColor = currentText
             }
         }
-    }
 
-    ////////////////
+        ////
+    }
 }

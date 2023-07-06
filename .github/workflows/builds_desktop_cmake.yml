@@ -12,7 +12,7 @@ on:
 #-------------------------------------------------------------------------------
 
 env:
-  APPLICATION: "MobileUI demo"
+  APPLICATION: "MobileUI_demo"
   APPLICATION_VERSION: "0.1"
   QT_VERSION: "6.5.1"
 

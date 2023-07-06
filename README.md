@@ -21,9 +21,9 @@ For Android builds, you'll need the appropriates JDK (11) SDK (24+) and NDK (25+
 
 ```bash
 $ git clone https://github.com/emericg/MobileUI_demo.git
-$ cd MobileUI_demo/build/
-$ qmake .. # configure with QMake
-$ cmake .. # OR configure with CMake
+$ cd MobileUI_demo/
+$ qmake . # configure with QMake
+$ cmake . # OR configure with CMake
 $ make
 ```
 
