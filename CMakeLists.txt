@@ -60,7 +60,7 @@ endif()
 ################################################################################
 
 # MobileUI
-add_subdirectory(src/thirdparty/MobileUI)
+add_subdirectory(MobileUI/)
 target_link_libraries(MobileUI_demo PRIVATE MobileUI)
 
 # Qt
