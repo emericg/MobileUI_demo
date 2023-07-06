@@ -52,8 +52,7 @@ jobs:
       # Build application
       - name: Build application
         run: |
-             cd build/
-             cmake ..
+             cmake .
              make -j$(nproc)
 
   ## macOS build ###############################################################
@@ -88,8 +87,7 @@ jobs:
       # Build application
       - name: Build application
         run: |
-             cd build/
-             cmake ..
+             cmake .
              make -j$(nproc)
 
   ## Windows build #############################################################
@@ -124,6 +122,5 @@ jobs:
       # Build application
       - name: Build application
         run: |
-             cd build/
-             cmake .. -G"NMake Makefiles"
+             cmake . -G"NMake Makefiles"
              nmake

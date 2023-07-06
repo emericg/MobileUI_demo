@@ -54,18 +54,6 @@ jobs:
              qmake ${{env.APPLICATION}}.pro CONFIG+=release PREFIX=/usr
              make -j$(nproc)
 
-      # Deploy application
-      - name: Deploy application
-        run: |
-             ./deploy_linux.sh -c -i -p
-
-      # Upload AppImage
-      - name: Upload AppImage
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{env.APPLICATION}}-${{env.APPLICATION_VERSION}}-linux64.AppImage
-          path: ${{env.APPLICATION}}*.AppImage
-
   ## macOS build ###############################################################
   build-mac:
     name: "macOS CI build"
@@ -98,18 +86,6 @@ jobs:
         run: |
              qmake ${{env.APPLICATION}}.pro CONFIG+=release
              make -j$(nproc)
-
-      # Deploy application
-      - name: Deploy application
-        run: |
-             ./deploy_macos.sh -c -p
-
-      # Upload app zip
-      - name: Upload app zip
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{env.APPLICATION}}-${{env.APPLICATION_VERSION}}-macOS.zip
-          path: bin/${{env.APPLICATION}}-${{env.APPLICATION_VERSION}}-macOS.zip
 
   ## Windows build #############################################################
   build-windows:

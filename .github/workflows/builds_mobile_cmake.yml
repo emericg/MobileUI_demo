@@ -56,6 +56,7 @@ jobs:
           host: 'linux'
           target: 'android'
           arch: 'android_arm64_v8a'
+          aqtversion: '==3.2.*'
           extra: '--autodesktop'
 
       # Install dependencies (from package manager)
@@ -72,8 +73,7 @@ jobs:
       # Build application
       - name: Build application
         run: |
-             cd build/
-             cmake -DCMAKE_SYSTEM_NAME=Android -DCMAKE_TOOLCHAIN_FILE=${{env.ANDROID_NDK_HOME}}/build/cmake/android.toolchain.cmake -DANDROID_PLATFORM=android-23 ..
+             cmake -DCMAKE_SYSTEM_NAME=Android -DCMAKE_TOOLCHAIN_FILE=${{env.ANDROID_NDK_HOME}}/build/cmake/android.toolchain.cmake -DANDROID_PLATFORM=android-23 .
              make -j$(nproc)
 
   ## iOS build #################################################################
@@ -94,6 +94,7 @@ jobs:
           version: ${{env.QT_VERSION}}
           host: 'mac'
           target: 'ios'
+          aqtversion: '==3.2.*'
           extra: '--autodesktop'
 
       # Install dependencies (from package manager)
@@ -110,6 +111,5 @@ jobs:
       # Build application
       - name: Build application
         run: |
-             cd build/
-             cmake -DCMAKE_SYSTEM_NAME=iOS ..
+             cmake -DCMAKE_SYSTEM_NAME=iOS .
              make -j$(nproc)
