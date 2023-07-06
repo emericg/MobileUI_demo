@@ -1,0 +1,108 @@
+#-------------------------------------------------------------------------------
+# Workflow configuration
+#-------------------------------------------------------------------------------
+
+name: "Mobile CI builds (qmake)"
+on:
+  push:
+  pull_request:
+
+#-------------------------------------------------------------------------------
+# Define application name & version
+#-------------------------------------------------------------------------------
+
+env:
+  APPLICATION: "MobileUI demo"
+  APPLICATION_VERSION: "0.1"
+  QT_VERSION: "6.5.1"
+
+#-------------------------------------------------------------------------------
+# Workflow jobs
+#-------------------------------------------------------------------------------
+
+jobs:
+  ## Android build #############################################################
+  build-android:
+    name: "Android CI build"
+    runs-on: ubuntu-20.04
+    steps:
+      # Checkout the repository (and submodules)
+      - name: Checkout repository (and submodules)
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      # Java environment (already installed in 'ubuntu-20.04')
+      #- name: Install JDK environment
+      #  uses: actions/setup-java@v2
+      #  with:
+      #    distribution: 'zulu'
+      #    java-version: '11'
+
+      # Android environment (already installed in 'ubuntu-20.04')
+      #- name: Setup Android SDK
+      #  uses: android-actions/setup-android@v2
+      #- name: Install Android SDK / NDK / tools
+      #  run: |
+      #       sdkmanager "platforms;android-33"
+      #       sdkmanager "ndk;25.1.8937393"
+      #       sdkmanager "build-tools;31.0.1"
+
+      # Install Qt (Android & desktop)
+      - name: Install Qt (Android & desktop)
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: ${{env.QT_VERSION}}
+          host: 'linux'
+          target: 'android'
+          arch: 'android_arm64_v8a'
+          modules: qt5compat
+          aqtversion: '==3.1.*'
+          py7zrversion: '==0.20.*'
+          extra: '--autodesktop'
+
+      # Setup env
+      - name: Setup env
+        run: |
+             qmake --version
+
+      # Build application
+      - name: Build application
+        run: |
+             qmake ${{env.APPLICATION}}.pro CONFIG+=release
+             make -j$(nproc)
+
+  ## iOS build #################################################################
+  build-ios:
+    name: "iOS CI build"
+    runs-on: macos-11
+    steps:
+      # Checkout the repository (and submodules)
+      - name: Checkout repository (and submodules)
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      # Install Qt (iOS & desktop)
+      - name: Install Qt (iOS & desktop)
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: ${{env.QT_VERSION}}
+          host: 'mac'
+          target: 'ios'
+          modules: qtconnectivity qtcharts qtshadertools qt5compat
+          aqtversion: '==3.1.*'
+          py7zrversion: '==0.20.*'
+          extra: '--autodesktop'
+
+      # Setup env
+      - name: Setup env
+        run: |
+             ln -s /Users/runner/work/${{env.APPLICATION}}/Qt/${{env.QT_VERSION}}/macos /Users/runner/work/${{env.APPLICATION}}/Qt/${{env.QT_VERSION}}/clang_64
+             qmake --version
+
+      # Build application
+      - name: Build application
+        run: |
+             qmake ${{env.APPLICATION}}.pro CONFIG+=release
+             make -j$(nproc)

@@ -1,0 +1,6 @@
+MobileUI_demo.creator*
+MobileUI_demo.pro.*
+CMakeLists.txt.user
+Makefile
+.qmake.stash
+.DS_Store

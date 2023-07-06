@@ -1,0 +1,3 @@
+[submodule "MobileUI"]
+	path = MobileUI
+	url = git@github.com:emericg/MobileUI.git
