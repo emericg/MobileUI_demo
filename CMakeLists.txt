@@ -20,7 +20,7 @@ message(STATUS "[PROJECT] TOOLCHAIN_FILE            = ${CMAKE_TOOLCHAIN_FILE}")
 
 ################################################################################
 
-find_package(Qt6 REQUIRED COMPONENTS Core Gui Qml Quick QuickControls2 Svg)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Qml Quick QuickControls2)
 
 qt_standard_project_setup()
 
@@ -74,7 +74,7 @@ target_link_libraries(MobileUI_demo PRIVATE
 
 ################################################################################
 
-install(TARGETS QmlAppTemplate
+install(TARGETS MobileUI_demo
     BUNDLE DESTINATION .    # used by macOS
     ARCHIVE DESTINATION .
     LIBRARY DESTINATION .   # used by Android
