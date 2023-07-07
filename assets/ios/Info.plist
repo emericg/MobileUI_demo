@@ -5,19 +5,21 @@
 	<key>CFBundleDisplayName</key>
 	<string>MobileUI</string>
 	<key>CFBundleExecutable</key>
-	<string>mobileuidemo</string>
+	<string>${EXECUTABLE_NAME}</string>
+	<key>CFBundleGetInfoString</key>
+	<string>Created by Qt/QMake</string>
 	<key>CFBundleIconFile</key>
 	<string>${ASSETCATALOG_COMPILER_APPICON_NAME}</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.emeric.mobileuidemo</string>
+	<string>${PRODUCT_BUNDLE_IDENTIFIER}</string>
 	<key>CFBundleName</key>
-	<string>MobileUI</string>
+	<string>${PRODUCT_NAME}</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
 	<string>0.1</string>
 	<key>CFBundleSignature</key>
-	<string>com.emeric.mobileuidemo</string>
+	<string>${QMAKE_PKGINFO_TYPEINFO}</string>
 	<key>CFBundleVersion</key>
 	<string>000101</string>
 	<key>LSRequiresIPhoneOS</key>

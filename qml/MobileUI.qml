@@ -10,10 +10,11 @@ ApplicationWindow {
     minimumHeight: 960
 
     flags: (Qt.platform.os === "ios") ? Qt.Window | Qt.MaximizeUsingFullscreenGeometryHint : Qt.Window
-    color: colorBackground
+    visibility: Window.AutomaticVisibility
     visible: true
 
     property string colorBackground: "#eee"
+    color: colorBackground
 
     property int screenPaddingStatusbar: 0
     property int screenPaddingNavbar: 0
@@ -29,12 +30,12 @@ ApplicationWindow {
     property int screenOrientationFull: Screen.orientation
     onScreenOrientationChanged: handleSafeAreas()
 
-    onVisibilityChanged: handleSafeAreas()
-
     function handleSafeAreas() {
-        // safe areas handling is a work in progress
+        // safe areas handling is a work in progress /!\
+
         // safe areas are only taken into account when using maximized geometry / full screen mode
-        if (appWindow.visibility === ApplicationWindow.FullScreen ||
+
+        if (appWindow.visibility === Window.FullScreen ||
             appWindow.flags & Qt.MaximizeUsingFullscreenGeometryHint) {
 
             screenPaddingStatusbar = mobileUI.statusbarHeight
@@ -48,18 +49,20 @@ ApplicationWindow {
             // hacks
             if (Qt.platform.os === "android") {
                 if (Screen.primaryOrientation === Qt.PortraitOrientation) {
-                    screenPaddingStatusbar = screenPaddingTop
-                    screenPaddingTop = 0
+                    if (appWindow.visibility === Window.FullScreen) {
+                        screenPaddingStatusbar = 0
+                        screenPaddingNavbar = 0
+                    } else {
+                        screenPaddingStatusbar = screenPaddingTop
+                        screenPaddingTop = 0
+                    }
                 } else {
                     screenPaddingNavbar = 0
                 }
             }
+            // hacks
             if (Qt.platform.os === "ios") {
                 //
-            }
-            if (visibility === ApplicationWindow.FullScreen) {
-                screenPaddingStatusbar = 0
-                screenPaddingNavbar = 0
             }
         } else {
             screenPaddingStatusbar = 0
@@ -71,11 +74,12 @@ ApplicationWindow {
         }
 
         console.log("> handleSafeAreas()")
+        console.log("- window mode:         " + appWindow.visibility)
         console.log("- screen width:        " + Screen.width)
         console.log("- screen width avail:  " + Screen.desktopAvailableWidth)
         console.log("- screen height:       " + Screen.height)
         console.log("- screen height avail: " + Screen.desktopAvailableHeight)
-        console.log("- screen orientation:  " + Screen.orientation)
+        console.log("- screen orientation (full): " + Screen.orientation)
         console.log("- screen orientation (primary): " + Screen.primaryOrientation)
         console.log("- screenSizeStatusbar: " + screenPaddingStatusbar)
         console.log("- screenSizeNavbar:    " + screenPaddingNavbar)
@@ -126,72 +130,84 @@ ApplicationWindow {
 
         ////
 
-        Rectangle {
-            id: topMarginVis
+        Item {
+            id: safeAreas
+            anchors.fill: parent
 
-            anchors.top: parent.top
-            anchors.left: parent.left
-            anchors.right: parent.right
+            Rectangle {
+                id: topMarginVis
 
-            height: screenPaddingTop
-            color: "red"
-            opacity: 0.1
+                anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.right: parent.right
+
+                height: screenPaddingTop
+                color: "red"
+                opacity: 0.1
+            }
+            Rectangle {
+                id: leftMarginVis
+
+                anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.bottom: parent.bottom
+
+                width: screenPaddingLeft
+                color: "red"
+                opacity: 0.1
+            }
+            Rectangle {
+                id: rightMarginVis
+
+                anchors.top: parent.top
+                anchors.right: parent.right
+                anchors.bottom: parent.bottom
+
+                width: screenPaddingRight
+                color: "red"
+                opacity: 0.1
+            }
+            Rectangle {
+                id: bottomMarginVis
+
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.bottom: parent.bottom
+
+                height: screenPaddingBottom
+                color: "red"
+                opacity: 0.1
+            }
         }
-        Rectangle {
-            id: leftMarginVis
 
-            anchors.top: parent.top
-            anchors.left: parent.left
-            anchors.bottom: parent.bottom
+        ////
 
-            width: screenPaddingLeft
-            color: "red"
-            opacity: 0.1
-        }
-        Rectangle {
-            id: rightMarginVis
+        Item {
+            id: systemBars
+            anchors.fill: parent
 
-            anchors.top: parent.top
-            anchors.right: parent.right
-            anchors.bottom: parent.bottom
+            Rectangle {
+                id: statusbarVis
 
-            width: screenPaddingRight
-            color: "red"
-            opacity: 0.1
-        }
-        Rectangle {
-            id: bottomMarginVis
+                anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.right: parent.right
 
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.bottom: parent.bottom
+                height: screenPaddingStatusbar
+                color: "blue"
+                opacity: 0.1
+            }
+            Rectangle {
+                id: navbarVis
 
-            height: screenPaddingBottom
-            color: "red"
-            opacity: 0.1
-        }
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.bottom: parent.bottom
 
-        Rectangle {
-            id: statusbarVis
-
-            anchors.top: parent.top
-            anchors.left: parent.left
-            anchors.right: parent.right
-
-            height: screenPaddingStatusbar
-            color: "blue"
-            opacity: 0.1
-        }
-        Rectangle {
-            id: navbarVis
-
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.bottom: parent.bottom
-
-            height: screenPaddingNavbar
-            color: "blue"
-            opacity: 0.1
+                height: screenPaddingNavbar
+                color: "blue"
+                opacity: 0.1
+            }
         }
 
         ////
@@ -204,12 +220,15 @@ ApplicationWindow {
             anchors.right: parent.right
             anchors.rightMargin: 16
 
+            visible: (appWindow.visibility !== Window.FullScreen)
+
             model: ListModel {
                 id: cbStatusbarColor
                 ListElement { text: "grey"; }
                 ListElement { text: "white"; }
                 ListElement { text: "red"; }
                 ListElement { text: "blue"; }
+                ListElement { text: "transparent"; }
             }
 
             onActivated: {
@@ -255,14 +274,20 @@ ApplicationWindow {
                     text: "regular"
                     onClicked: {
                         appWindow.flags = Qt.Window
-                        appWindow.visibility = Window.Windowed
+                        appWindow.visibility = Window.FullScreen
+                        appWindow.visibility = Window.AutomaticVisibility
+                        mobileUI.refreshUI()
+                        handleSafeAreas()
                     }
                 }
                 Button {
                     text: "maximized"
                     onClicked: {
                         appWindow.flags = Qt.Window | Qt.MaximizeUsingFullscreenGeometryHint
-                        appWindow.visibility = Window.Windowed
+                        appWindow.visibility = Window.FullScreen
+                        appWindow.visibility = Window.AutomaticVisibility
+                        //mobileUI.refreshUI() // DO NOT
+                        handleSafeAreas()
                     }
                 }
                 Button {
@@ -270,6 +295,8 @@ ApplicationWindow {
                     onClicked: {
                         appWindow.flags = Qt.Window | Qt.MaximizeUsingFullscreenGeometryHint
                         appWindow.visibility = Window.FullScreen
+                        //mobileUI.refreshUI() // DO NOT
+                        handleSafeAreas()
                     }
                 }
             }
@@ -318,7 +345,8 @@ ApplicationWindow {
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 16 + screenPaddingNavbar + screenPaddingBottom
 
-            visible: (Qt.platform.os === "android")
+            visible: (appWindow.visibility !== Window.FullScreen &&
+                      Qt.platform.os === "android")
 
             model: ListModel {
                 id: cbNavbarColor
@@ -326,6 +354,7 @@ ApplicationWindow {
                 ListElement { text: "white"; }
                 ListElement { text: "red"; }
                 ListElement { text: "blue"; }
+                ListElement { text: "transparent"; }
             }
 
             onActivated: {
