@@ -13,6 +13,8 @@ ApplicationWindow {
     visibility: Window.AutomaticVisibility
     visible: true
 
+    property int windowmode: (Qt.platform.os === "ios") ? 1 : 0 // this is important if you toggle between window flags/visibilities
+
     property string colorBackground: "#eee"
     color: colorBackground
 
@@ -28,7 +30,9 @@ ApplicationWindow {
     // 4 = Qt.InvertedPortraitOrientation, 8 = Qt.InvertedLandscapeOrientation
     property int screenOrientation: Screen.primaryOrientation
     property int screenOrientationFull: Screen.orientation
+
     onScreenOrientationChanged: handleSafeAreas()
+    onVisibilityChanged: handleSafeAreas()
 
     function handleSafeAreas() {
         // safe areas handling is a work in progress /!\
@@ -53,7 +57,7 @@ ApplicationWindow {
                         screenPaddingStatusbar = 0
                         screenPaddingNavbar = 0
                     } else {
-                        screenPaddingStatusbar = screenPaddingTop
+                        screenPaddingStatusbar = mobileUI.safeAreaTop
                         screenPaddingTop = 0
                     }
                 } else {
@@ -62,7 +66,12 @@ ApplicationWindow {
             }
             // hacks
             if (Qt.platform.os === "ios") {
-                //
+                if (appWindow.visibility === Window.FullScreen) {
+                    screenPaddingStatusbar = 0
+                } else {
+                    screenPaddingStatusbar = mobileUI.safeAreaTop
+                    screenPaddingTop = 0
+                }
             }
         } else {
             screenPaddingStatusbar = 0
@@ -92,10 +101,10 @@ ApplicationWindow {
     MobileUI {
         id: mobileUI
 
-        statusbarTheme: MobileUI.Light
         statusbarColor: "grey"
-        navbarTheme: MobileUI.Light
+        statusbarTheme: MobileUI.Dark
         navbarColor: "grey"
+        navbarTheme: MobileUI.Dark
     }
 
     Connections {
@@ -187,23 +196,35 @@ ApplicationWindow {
             anchors.fill: parent
 
             Rectangle {
-                id: statusbarVis
-
+                id: iosStatusbar
                 anchors.top: parent.top
                 anchors.left: parent.left
                 anchors.right: parent.right
 
+                visible: (Qt.platform.os === "ios")
+                height: screenPaddingStatusbar
+                color: "grey"
+                z: 10
+            }
+
+            Rectangle {
+                id: statusbarVis
+                anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.right: parent.right
+
+                visible: (Qt.platform.os === "android")
                 height: screenPaddingStatusbar
                 color: "blue"
                 opacity: 0.1
             }
             Rectangle {
                 id: navbarVis
-
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom
 
+                visible: (Qt.platform.os === "android")
                 height: screenPaddingNavbar
                 color: "blue"
                 opacity: 0.1
@@ -233,6 +254,7 @@ ApplicationWindow {
 
             onActivated: {
                 mobileUI.statusbarColor = currentText
+                iosStatusbar.color = currentText
             }
         }
 
@@ -273,30 +295,37 @@ ApplicationWindow {
                 Button {
                     text: "regular"
                     onClicked: {
-                        appWindow.flags = Qt.Window
-                        appWindow.visibility = Window.FullScreen
-                        appWindow.visibility = Window.AutomaticVisibility
-                        mobileUI.refreshUI()
-                        handleSafeAreas()
+                        if (appWindow.windowmode !== 0) {
+                            appWindow.windowmode = 0 // not re-setting same flags/visibility is important
+
+                            appWindow.flags = Qt.Window
+                            appWindow.visibility = Window.Maximized
+                            handleSafeAreas()
+                        }
                     }
                 }
                 Button {
                     text: "maximized"
                     onClicked: {
-                        appWindow.flags = Qt.Window | Qt.MaximizeUsingFullscreenGeometryHint
-                        appWindow.visibility = Window.FullScreen
-                        appWindow.visibility = Window.AutomaticVisibility
-                        //mobileUI.refreshUI() // DO NOT
-                        handleSafeAreas()
+                        if (appWindow.windowmode !== 1) {
+                            appWindow.windowmode = 1 // not re-setting same flags/visibility is important
+
+                            appWindow.flags = Qt.Window | Qt.MaximizeUsingFullscreenGeometryHint
+                            appWindow.visibility = Window.Maximized
+                            handleSafeAreas()
+                        }
                     }
                 }
                 Button {
                     text: "fullscreen"
                     onClicked: {
-                        appWindow.flags = Qt.Window | Qt.MaximizeUsingFullscreenGeometryHint
-                        appWindow.visibility = Window.FullScreen
-                        //mobileUI.refreshUI() // DO NOT
-                        handleSafeAreas()
+                        if (appWindow.windowmode !== 2) {
+                            appWindow.windowmode = 2 // not re-setting same flags/visibility is important
+
+                            appWindow.flags = Qt.Window | Qt.MaximizeUsingFullscreenGeometryHint
+                            appWindow.visibility = Window.FullScreen
+                            handleSafeAreas()
+                        }
                     }
                 }
             }
