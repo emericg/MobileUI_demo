@@ -9,11 +9,16 @@ ApplicationWindow {
     minimumWidth: 480
     minimumHeight: 960
 
-    flags: (Qt.platform.os === "ios") ? Qt.Window | Qt.MaximizeUsingFullscreenGeometryHint : Qt.Window
+    // START IN "REGULAR" MODE
+    //flags: Qt.Window
+    //property int windowmode: 0 // this is important if you toggle between window flags/visibilities
+
+    // START IN "REGULAR WITH TRANSPARENT BARS" MODE
+    flags: Qt.Window | Qt.MaximizeUsingFullscreenGeometryHint
+    property int windowmode: 1 // this is important if you toggle between window flags/visibilities
+
     visibility: Window.AutomaticVisibility
     visible: true
-
-    property int windowmode: (Qt.platform.os === "ios") ? 1 : 0 // this is important if you toggle between window flags/visibilities
 
     property string colorBackground: "#eee"
     color: colorBackground
@@ -84,6 +89,7 @@ ApplicationWindow {
 
         console.log("> handleSafeAreas()")
         console.log("- window mode:         " + appWindow.visibility)
+        console.log("- window flags:        " + appWindow.flags)
         console.log("- screen width:        " + Screen.width)
         console.log("- screen width avail:  " + Screen.desktopAvailableWidth)
         console.log("- screen height:       " + Screen.height)
@@ -300,6 +306,7 @@ ApplicationWindow {
 
                             appWindow.flags = Qt.Window
                             appWindow.visibility = Window.Maximized
+                            mobileUI.refreshUI()
                             handleSafeAreas()
                         }
                     }
@@ -312,6 +319,7 @@ ApplicationWindow {
 
                             appWindow.flags = Qt.Window | Qt.MaximizeUsingFullscreenGeometryHint
                             appWindow.visibility = Window.Maximized
+                            mobileUI.refreshUI()
                             handleSafeAreas()
                         }
                     }
@@ -324,6 +332,7 @@ ApplicationWindow {
 
                             appWindow.flags = Qt.Window | Qt.MaximizeUsingFullscreenGeometryHint
                             appWindow.visibility = Window.FullScreen
+                            mobileUI.refreshUI()
                             handleSafeAreas()
                         }
                     }
