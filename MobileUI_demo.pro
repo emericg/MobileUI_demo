@@ -4,7 +4,7 @@ VERSION = 0.1
 DEFINES+= APP_NAME=\\\"$$TARGET\\\"
 DEFINES+= APP_VERSION=\\\"$$VERSION\\\"
 
-CONFIG += c++17
+CONFIG += c++14
 QT     += core qml quick quickcontrols2 svg
 
 !versionAtLeast(QT_VERSION, 6.0) : error("You need Qt6 to run this demo. The MobileUI component itself can run with Qt5.")
@@ -14,6 +14,7 @@ include(MobileUI/MobileUI.pri)
 
 # Project files
 SOURCES     += src/main.cpp
+
 RESOURCES   += qml/qml.qrc
 
 OTHER_FILES += README.md  \
@@ -35,7 +36,7 @@ macx {
     QMAKE_BUNDLE = mobileuidemo
 
     # Target OS
-    QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.15
+    QMAKE_MACOSX_DEPLOYMENT_TARGET = 11.0
 
     # Target architecture(s)
     QMAKE_APPLE_DEVICE_ARCHS = x86_64 arm64
@@ -65,6 +66,6 @@ ios {
     QMAKE_INFO_PLIST = $${PWD}/assets/ios/Info.plist
 
     # Target OS
-    QMAKE_IOS_DEPLOYMENT_TARGET = 11.0
+    QMAKE_IOS_DEPLOYMENT_TARGET = 13.0
     QMAKE_APPLE_TARGETED_DEVICE_FAMILY = 1,2 # 1: iPhone / 2: iPad / 1,2: Universal
 }

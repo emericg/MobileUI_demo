@@ -3,8 +3,6 @@
 
 #include <MobileUI>
 
-/* ************************************************************************** */
-
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
@@ -20,8 +18,6 @@ int main(int argc, char *argv[])
 
     // Start the UI
     QQmlApplicationEngine engine;
-    QQmlContext *engine_context = engine.rootContext();
-
     engine.load(QUrl(QStringLiteral("qrc:/qml/MobileUI.qml")));
     if (engine.rootObjects().isEmpty())
     {
@@ -31,5 +27,3 @@ int main(int argc, char *argv[])
 
     return app.exec();
 }
-
-/* ************************************************************************** */

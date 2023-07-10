@@ -6,19 +6,30 @@ import MobileUI
 
 ApplicationWindow {
     id: appWindow
+
     minimumWidth: 480
     minimumHeight: 960
+    visible: true
+
+    // Start on "MAXIMIZED" mode on iOS but "REGULAR" mode on Android
+    flags: (Qt.platform.os === "ios") ? Qt.Window : Qt.Window | Qt.MaximizeUsingFullscreenGeometryHint
+    visibility: Window.AutomaticVisibility
+    property int windowmode: (Qt.platform.os === "ios") ? 1 : 0 // this is important if you toggle between window flags/visibilities
 
     // START IN "REGULAR" MODE
     //flags: Qt.Window
-    //property int windowmode: 0 // this is important if you toggle between window flags/visibilities
+    //property int windowmode: 0
+    //visibility: Window.AutomaticVisibility
 
-    // START IN "REGULAR WITH TRANSPARENT BARS" MODE
-    flags: Qt.Window | Qt.MaximizeUsingFullscreenGeometryHint
-    property int windowmode: 1 // this is important if you toggle between window flags/visibilities
+    // START IN "MAXIMIZED" MODE
+    //flags: Qt.Window | Qt.MaximizeUsingFullscreenGeometryHint
+    //property int windowmode: 1
+    //visibility: Window.Maximized
 
-    visibility: Window.AutomaticVisibility
-    visible: true
+    // START IN "FULLSCREEN" MODE
+    //flags: Qt.Window | Qt.MaximizeUsingFullscreenGeometryHint
+    //property int windowmode: 1
+    //visibility: Window.FullScreen
 
     property string colorBackground: "#eee"
     color: colorBackground
@@ -139,11 +150,13 @@ ApplicationWindow {
         }
     }
 
+    ////////////////////////////////////////////////////////////////////////////
+
     Item {
         id: appContent
         anchors.fill: parent
 
-        ////
+        ////////
 
         Item {
             id: safeAreas
@@ -195,7 +208,7 @@ ApplicationWindow {
             }
         }
 
-        ////
+        ////////
 
         Item {
             id: systemBars
@@ -237,9 +250,9 @@ ApplicationWindow {
             }
         }
 
-        ////
+        ////////
 
-        ComboBox { // this combobox handle the status bar theme
+        ComboBox { // this combobox handle the status bar color+theme
             anchors.top: parent.top
             anchors.topMargin: 16 + screenPaddingStatusbar + screenPaddingTop
             anchors.left: parent.left
@@ -247,7 +260,8 @@ ApplicationWindow {
             anchors.right: parent.right
             anchors.rightMargin: 16
 
-            visible: (appWindow.visibility !== Window.FullScreen)
+            visible: (Qt.platform.os === "android" || Qt.platform.os === "ios") &&
+                     (appWindow.visibility !== Window.FullScreen)
 
             model: ListModel {
                 id: cbStatusbarColor
@@ -264,142 +278,238 @@ ApplicationWindow {
             }
         }
 
-        ////
+        ////////
 
         Column {
             anchors.centerIn: parent
             spacing: 16
 
-            Button {
-                id: deviceThemeButton
+            visible: !(Qt.platform.os === "android" || Qt.platform.os === "ios")
+
+            Text {
                 anchors.horizontalCenter: parent.horizontalCenter
+                width: appContent.width * 0.75
 
-                visible: (Qt.platform.os === "android")
-                text: "device theme (?)"
-                onClicked: update()
+                text: "MobileUI doesn't do much when used on a desktop OS.<br>
+                       Every functions and variables are available and can be used without
+                       conditional checks, but without any functionnality behind them."
 
-                function update() {
-                    deviceThemeButton.text = "device theme (%1)".arg(mobileUI.deviceTheme ? "dark" : "light")
+                wrapMode: Text.WordWrap
+
+                Rectangle {
+                    anchors.fill: parent
+                    anchors.margins: -16
+                    z: -1
+                    color: white
                 }
-            }
-
-            Button {
-                anchors.horizontalCenter: parent.horizontalCenter
-
-                text: "keep screen on (disabled)"
-
-                onClicked: {
-                    mobileUI.setScreenKeepOn(!mobileUI.screenAlwaysOn)
-                    text = "keep screen on (%1)".arg(mobileUI.screenAlwaysOn ? "enabled" : "disabled")
-                }
-            }
-
-            Row {
-                anchors.horizontalCenter: parent.horizontalCenter
-                spacing: 8
-
-                Button {
-                    text: "regular"
-                    onClicked: {
-                        if (appWindow.windowmode !== 0) {
-                            appWindow.windowmode = 0 // not re-setting same flags/visibility is important
-
-                            appWindow.flags = Qt.Window
-                            appWindow.visibility = Window.Maximized
-                            mobileUI.refreshUI()
-                            handleSafeAreas()
-                        }
-                    }
-                }
-                Button {
-                    text: "maximized"
-                    onClicked: {
-                        if (appWindow.windowmode !== 1) {
-                            appWindow.windowmode = 1 // not re-setting same flags/visibility is important
-
-                            appWindow.flags = Qt.Window | Qt.MaximizeUsingFullscreenGeometryHint
-                            appWindow.visibility = Window.Maximized
-                            mobileUI.refreshUI()
-                            handleSafeAreas()
-                        }
-                    }
-                }
-                Button {
-                    text: "fullscreen"
-                    onClicked: {
-                        if (appWindow.windowmode !== 2) {
-                            appWindow.windowmode = 2 // not re-setting same flags/visibility is important
-
-                            appWindow.flags = Qt.Window | Qt.MaximizeUsingFullscreenGeometryHint
-                            appWindow.visibility = Window.FullScreen
-                            mobileUI.refreshUI()
-                            handleSafeAreas()
-                        }
-                    }
-                }
-            }
-
-            Row {
-                anchors.horizontalCenter: parent.horizontalCenter
-                spacing: 8
-
-                Button {
-                    text: "left"
-                    onClicked: mobileUI.lockScreenOrientation(MobileUI.Landscape_left)
-                }
-                Button {
-                    text: "up"
-                    onClicked: mobileUI.lockScreenOrientation(MobileUI.Portrait)
-                }
-                Button {
-                    text: "0"
-                    onClicked: mobileUI.lockScreenOrientation(MobileUI.Unlocked)
-                }
-                Button {
-                    text: "down"
-                    onClicked: mobileUI.lockScreenOrientation(MobileUI.Portrait_upsidedown)
-                }
-                Button {
-                    text: "right"
-                    onClicked: mobileUI.lockScreenOrientation(MobileUI.Landscape_right)
-                }
-            }
-
-            Button {
-                anchors.horizontalCenter: parent.horizontalCenter
-
-                text: "vibrate"
-                onClicked: mobileUI.vibrate()
             }
         }
 
-        ////
+        ////////
 
-        ComboBox { // this combobox handle the navigation bar theme
+        Grid {
+            anchors.centerIn: parent
+
+            visible: (Qt.platform.os === "android" || Qt.platform.os === "ios")
+            columns: (appWindow.screenOrientation == Qt.PortraitOrientation) ? 1 : 2
+            rows: 2
+            spacing: 16
+
+            Column {
+                width: (appWindow.screenOrientation == Qt.PortraitOrientation)
+                        ? appWindow.width : appWindow.width / 2
+
+                spacing: 16
+
+                visible: (Qt.platform.os === "android" || Qt.platform.os === "ios")
+
+                Button {
+                    id: deviceThemeButton
+                    anchors.horizontalCenter: parent.horizontalCenter
+
+                    visible: (Qt.platform.os === "android")
+                    text: "device theme (?)"
+                    onClicked: update()
+
+                    function update() {
+                        deviceThemeButton.text = "device theme (%1)".arg(mobileUI.deviceTheme ? "dark" : "light")
+                    }
+                }
+
+                Button {
+                    anchors.horizontalCenter: parent.horizontalCenter
+
+                    text: "keep screen on (disabled)"
+
+                    onClicked: {
+                        mobileUI.setScreenKeepOn(!mobileUI.screenAlwaysOn)
+                        text = "keep screen on (%1)".arg(mobileUI.screenAlwaysOn ? "enabled" : "disabled")
+                    }
+                }
+
+                Row {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    spacing: 8
+
+                    Button {
+                        text: "regular"
+                        highlighted: (appWindow.windowmode === 0)
+                        onClicked: {
+                            if (appWindow.windowmode !== 0) {
+                                appWindow.windowmode = 0 // not re-setting same flags/visibility is important
+
+                                appWindow.flags = Qt.Window
+                                appWindow.visibility = Window.Maximized
+                                mobileUI.refreshUI()
+                                handleSafeAreas()
+                            }
+                        }
+                    }
+                    Button {
+                        text: "maximized"
+                        highlighted: (appWindow.windowmode === 1)
+                        onClicked: {
+                            if (appWindow.windowmode !== 1) {
+                                appWindow.windowmode = 1 // not re-setting same flags/visibility is important
+
+                                appWindow.flags = Qt.Window | Qt.MaximizeUsingFullscreenGeometryHint
+                                appWindow.visibility = Window.Maximized
+                                mobileUI.refreshUI()
+                                handleSafeAreas()
+                            }
+                        }
+                    }
+                    Button {
+                        text: "fullscreen"
+                        highlighted: (appWindow.windowmode === 2)
+                        onClicked: {
+                            if (appWindow.windowmode !== 2) {
+                                appWindow.windowmode = 2 // not re-setting same flags/visibility is important
+
+                                appWindow.flags = Qt.Window | Qt.MaximizeUsingFullscreenGeometryHint
+                                appWindow.visibility = Window.FullScreen
+                                mobileUI.refreshUI()
+                                handleSafeAreas()
+                            }
+                        }
+                    }
+                }
+            }
+
+            ////
+
+            Column {
+                width: (appWindow.screenOrientation == Qt.PortraitOrientation)
+                        ? appWindow.width : appWindow.width / 2
+                spacing: 16
+
+                Row {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    spacing: 8
+
+                    Button {
+                        text: "left"
+                        highlighted: (mobileUI.screenOrientation === MobileUI.Landscape_left)
+                        onClicked: mobileUI.setScreenOrientation(MobileUI.Landscape_left)
+                    }
+                    Button {
+                        text: "up"
+                        highlighted: (mobileUI.screenOrientation === MobileUI.Portrait)
+                        onClicked: mobileUI.setScreenOrientation(MobileUI.Portrait)
+                    }
+                    Button {
+                        text: "0"
+                        highlighted: (mobileUI.screenOrientation === MobileUI.Unlocked)
+                        onClicked: mobileUI.setScreenOrientation(MobileUI.Unlocked)
+                    }
+                    Button {
+                        text: "down"
+                        highlighted: (mobileUI.screenOrientation === MobileUI.Portrait_upsidedown)
+                        onClicked: mobileUI.setScreenOrientation(MobileUI.Portrait_upsidedown)
+                    }
+                    Button {
+                        text: "right"
+                        highlighted: (mobileUI.screenOrientation === MobileUI.Landscape_right)
+                        onClicked: mobileUI.setScreenOrientation(MobileUI.Landscape_right)
+                    }
+                }
+
+                Button {
+                    anchors.horizontalCenter: parent.horizontalCenter
+
+                    text: "vibrate"
+                    onClicked: mobileUI.vibrate()
+                }
+            }
+        }
+
+        ////////
+
+        Column {
             anchors.left: parent.left
             anchors.leftMargin: 16
             anchors.right: parent.right
             anchors.rightMargin: 16
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 16 + screenPaddingNavbar + screenPaddingBottom
+            spacing: 8
 
-            visible: (appWindow.visibility !== Window.FullScreen &&
-                      Qt.platform.os === "android")
+            Row {
+                anchors.right: parent.right
+                spacing: 8
 
-            model: ListModel {
-                id: cbNavbarColor
-                ListElement { text: "grey"; }
-                ListElement { text: "white"; }
-                ListElement { text: "red"; }
-                ListElement { text: "blue"; }
-                ListElement { text: "transparent"; }
+                Text {
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: "Safe areas"
+                }
+                Rectangle {
+                    width: 16
+                    height: 16
+                    color: "red"
+                    opacity: 0.1
+                }
             }
 
-            onActivated: {
-                mobileUI.navbarColor = currentText
+            Row {
+                anchors.right: parent.right
+                spacing: 8
+
+                Text {
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: "System bars areas"
+                }
+                Rectangle {
+                    width: 16
+                    height: 16
+                    color: "blue"
+                    opacity: 0.1
+                }
+            }
+
+            ComboBox { // this combobox handle the navigation bar color+theme
+                anchors.left: parent.left
+                anchors.right: parent.right
+
+                visible: (appWindow.windowmode === 0 &&
+                          Qt.platform.os === "android")
+
+                model: ListModel {
+                    id: cbNavbarColor
+                    ListElement { text: "grey"; }
+                    ListElement { text: "white"; }
+                    ListElement { text: "red"; }
+                    ListElement { text: "blue"; }
+                    ListElement { text: "transparent"; }
+                }
+
+                onActivated: {
+                    mobileUI.navbarColor = currentText
+                }
             }
         }
 
-        ////
+        ////////
     }
+
+    ////////////////////////////////////////////////////////////////////////////
 }
