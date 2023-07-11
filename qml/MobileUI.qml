@@ -12,7 +12,7 @@ ApplicationWindow {
     visible: true
 
     // Start on "MAXIMIZED" mode on iOS but "REGULAR" mode on Android
-    flags: (Qt.platform.os === "ios") ? Qt.Window : Qt.Window | Qt.MaximizeUsingFullscreenGeometryHint
+    flags: (Qt.platform.os === "ios") ? Qt.Window | Qt.MaximizeUsingFullscreenGeometryHint : Qt.Window
     visibility: Window.AutomaticVisibility
     property int windowmode: (Qt.platform.os === "ios") ? 1 : 0 // this is important if you toggle between window flags/visibilities
 
@@ -215,24 +215,11 @@ ApplicationWindow {
             anchors.fill: parent
 
             Rectangle {
-                id: iosStatusbar
-                anchors.top: parent.top
-                anchors.left: parent.left
-                anchors.right: parent.right
-
-                visible: (Qt.platform.os === "ios")
-                height: screenPaddingStatusbar
-                color: "grey"
-                z: 10
-            }
-
-            Rectangle {
                 id: statusbarVis
                 anchors.top: parent.top
                 anchors.left: parent.left
                 anchors.right: parent.right
 
-                visible: (Qt.platform.os === "android")
                 height: screenPaddingStatusbar
                 color: "blue"
                 opacity: 0.1
@@ -243,10 +230,21 @@ ApplicationWindow {
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom
 
-                visible: (Qt.platform.os === "android")
                 height: screenPaddingNavbar
                 color: "blue"
                 opacity: 0.1
+            }
+
+            Rectangle {
+                id: statusbarUnderlay
+                anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.right: parent.right
+
+                visible: (Qt.platform.os === "ios" || appWindow.windowmode === 1)
+                height: screenPaddingStatusbar
+                color: "grey"
+                z: 10
             }
         }
 
@@ -274,7 +272,7 @@ ApplicationWindow {
 
             onActivated: {
                 mobileUI.statusbarColor = currentText
-                iosStatusbar.color = currentText
+                statusbarUnderlay.color = currentText
             }
         }
 
