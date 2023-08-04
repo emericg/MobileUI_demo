@@ -9,7 +9,13 @@ ApplicationWindow {
 
     minimumWidth: 480
     minimumHeight: 960
+
     visible: true
+
+    property string colorBackground: "#eee"
+    color: colorBackground
+
+    // WINDOW MODE /////////////////////////////////////////////////////////////
 
     // Start on "MAXIMIZED" mode on iOS but "REGULAR" mode on Android
     flags: (Qt.platform.os === "ios") ? Qt.Window | Qt.MaximizeUsingFullscreenGeometryHint : Qt.Window
@@ -31,16 +37,7 @@ ApplicationWindow {
     //property int windowmode: 1
     //visibility: Window.FullScreen
 
-    property string colorBackground: "#eee"
-    color: colorBackground
-
-    property int screenPaddingStatusbar: 0
-    property int screenPaddingNavbar: 0
-
-    property int screenPaddingTop: 0
-    property int screenPaddingLeft: 0
-    property int screenPaddingRight: 0
-    property int screenPaddingBottom: 0
+    // WINDOW ORIENTATION //////////////////////////////////////////////////////
 
     // 1 = Qt.PortraitOrientation, 2 = Qt.LandscapeOrientation
     // 4 = Qt.InvertedPortraitOrientation, 8 = Qt.InvertedLandscapeOrientation
@@ -49,6 +46,18 @@ ApplicationWindow {
 
     onScreenOrientationChanged: handleSafeAreas()
     onVisibilityChanged: handleSafeAreas()
+
+    // SAFE AREAS //////////////////////////////////////////////////////////////
+
+    property bool showSafeAreas: true
+
+    property int screenPaddingStatusbar: 0
+    property int screenPaddingNavbar: 0
+
+    property int screenPaddingTop: 0
+    property int screenPaddingLeft: 0
+    property int screenPaddingRight: 0
+    property int screenPaddingBottom: 0
 
     function handleSafeAreas() {
         // safe areas handling is a work in progress /!\
@@ -115,14 +124,7 @@ ApplicationWindow {
         console.log("- screenPaddingBottom: " + screenPaddingBottom)
     }
 
-    MobileUI {
-        id: mobileUI
-
-        statusbarColor: "grey"
-        statusbarTheme: MobileUI.Dark
-        navbarColor: "grey"
-        navbarTheme: MobileUI.Dark
-    }
+    ////////////////////////////////////////////////////////////////////////////
 
     Connections {
         target: Qt.application
@@ -152,6 +154,17 @@ ApplicationWindow {
 
     ////////////////////////////////////////////////////////////////////////////
 
+    MobileUI {
+        id: mobileUI
+
+        statusbarColor: "grey"
+        statusbarTheme: MobileUI.Dark
+        navbarColor: "grey"
+        navbarTheme: MobileUI.Dark
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+
     Item {
         id: appContent
         anchors.fill: parent
@@ -161,6 +174,8 @@ ApplicationWindow {
         Item {
             id: safeAreas
             anchors.fill: parent
+
+            visible: showSafeAreas
 
             Rectangle {
                 id: topMarginVis
@@ -213,6 +228,8 @@ ApplicationWindow {
         Item {
             id: systemBars
             anchors.fill: parent
+
+            visible: showSafeAreas
 
             Rectangle {
                 id: statusbarVis
@@ -298,7 +315,7 @@ ApplicationWindow {
                     anchors.fill: parent
                     anchors.margins: -16
                     z: -1
-                    color: white
+                    color: "white"
                 }
             }
         }
@@ -338,9 +355,10 @@ ApplicationWindow {
                     anchors.horizontalCenter: parent.horizontalCenter
 
                     text: "keep screen on (disabled)"
+                    highlighted: mobileUI.screenAlwaysOn
 
                     onClicked: {
-                        mobileUI.setScreenKeepOn(!mobileUI.screenAlwaysOn)
+                        mobileUI.setScreenAlwaysOn(!mobileUI.screenAlwaysOn)
                         text = "keep screen on (%1)".arg(mobileUI.screenAlwaysOn ? "enabled" : "disabled")
                     }
                 }
@@ -435,6 +453,14 @@ ApplicationWindow {
                 Button {
                     anchors.horizontalCenter: parent.horizontalCenter
 
+                    text: "show safe areas"
+                    highlighted: showSafeAreas
+                    onClicked: showSafeAreas = !showSafeAreas
+                }
+
+                Button {
+                    anchors.horizontalCenter: parent.horizontalCenter
+
                     text: "vibrate"
                     onClicked: mobileUI.vibrate()
                 }
@@ -456,6 +482,8 @@ ApplicationWindow {
                 anchors.right: parent.right
                 spacing: 8
 
+                visible: showSafeAreas
+
                 Text {
                     anchors.verticalCenter: parent.verticalCenter
                     text: "Safe areas"
@@ -471,6 +499,8 @@ ApplicationWindow {
             Row {
                 anchors.right: parent.right
                 spacing: 8
+
+                visible: showSafeAreas
 
                 Text {
                     anchors.verticalCenter: parent.verticalCenter
