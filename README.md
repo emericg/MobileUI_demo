@@ -9,6 +9,10 @@ A Qt6 / QML demo application for the [MobileUI](https://github.com/emericg/Mobil
 
 You can report bugs or request features directly on the [MobileUI issue page](https://github.com/emericg/MobileUI/issues).  
 
+## Screenshots
+
+![MobileUIs](https://raw.githubusercontent.com/emericg/screenshots_flathub/master/MobileUI/MobileUI.png)
+
 ## About
 
 ### Dependencies
