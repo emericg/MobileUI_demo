@@ -12,9 +12,9 @@ on:
 #-------------------------------------------------------------------------------
 
 env:
-  APPLICATION: "MobileUI_demo"
-  APPLICATION_VERSION: "0.1"
-  QT_VERSION: "6.5.1"
+  APP_NAME: "MobileUI_demo"
+  APP_VERSION: "0.1"
+  QT_VERSION: "6.5.3"
 
 #-------------------------------------------------------------------------------
 # Workflow jobs
@@ -28,7 +28,7 @@ jobs:
     steps:
       # Checkout the repository (and submodules)
       - name: Checkout repository (and submodules)
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: recursive
 
@@ -51,5 +51,5 @@ jobs:
       # Build application
       - name: Build application
         run: |
-             qmake ${{env.APPLICATION}}.pro CONFIG+=release PREFIX=/usr
+             qmake ${{env.APP_NAME}}.pro CONFIG+=release PREFIX=/usr
              make -j$(nproc)

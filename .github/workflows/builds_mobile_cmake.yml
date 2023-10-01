@@ -12,9 +12,9 @@ on:
 #-------------------------------------------------------------------------------
 
 env:
-  APPLICATION: "MobileUI_demo"
-  APPLICATION_VERSION: "0.1"
-  QT_VERSION: "6.5.1"
+  APP_NAME: "MobileUI_demo"
+  APP_VERSION: "0.1"
+  QT_VERSION: "6.5.3"
 
 #-------------------------------------------------------------------------------
 # Workflow jobs
@@ -28,7 +28,7 @@ jobs:
     steps:
       # Checkout the repository (and submodules)
       - name: Checkout repository (and submodules)
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: recursive
 
@@ -45,8 +45,8 @@ jobs:
       #- name: Install Android SDK / NDK / tools
       #  run: |
       #       sdkmanager "platforms;android-33"
-      #       sdkmanager "ndk;25.1.8937393"
-      #       sdkmanager "build-tools;33.0.1"
+      #       sdkmanager "ndk;25.2.9519653"
+      #       sdkmanager "build-tools;33.0.2"
 
       # Install Qt (Android & desktop)
       - name: Install Qt (Android & desktop)
@@ -67,14 +67,14 @@ jobs:
       # Setup env
       - name: Setup env
         run: |
-             echo "QT_HOST_PATH=/home/runner/work/${{env.APPLICATION}}/Qt/${{env.QT_VERSION}}/gcc_64" >> $GITHUB_ENV
+             echo "QT_HOST_PATH=/home/runner/work/${{env.APP_NAME}}/Qt/${{env.QT_VERSION}}/gcc_64" >> $GITHUB_ENV
              cmake --version
 
       # Build application
       - name: Build application
         run: |
              cmake -DCMAKE_SYSTEM_NAME=Android -DCMAKE_TOOLCHAIN_FILE=${{env.ANDROID_NDK_HOME}}/build/cmake/android.toolchain.cmake -DANDROID_PLATFORM=android-23 .
-             make -j$(nproc)
+             cmake --build .
 
   ## iOS build #################################################################
   build-ios:
@@ -105,11 +105,11 @@ jobs:
       # Setup env
       - name: Setup env
         run: |
-             echo "QT_HOST_PATH=/Users/runner/work/${{env.APPLICATION}}/Qt/${{env.QT_VERSION}}/macos" >> $GITHUB_ENV
+             echo "QT_HOST_PATH=/Users/runner/work/${{env.APP_NAME}}/Qt/${{env.QT_VERSION}}/macos" >> $GITHUB_ENV
              cmake --version
 
       # Build application
       - name: Build application
         run: |
              cmake -DCMAKE_SYSTEM_NAME=iOS .
-             make -j$(nproc)
+             cmake --build .
