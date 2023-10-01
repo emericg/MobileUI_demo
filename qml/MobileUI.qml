@@ -11,15 +11,14 @@ ApplicationWindow {
     minimumHeight: 960
 
     visible: true
-
-    property string colorBackground: "#eee"
-    color: colorBackground
+    color: "#eee"
 
     // WINDOW MODE /////////////////////////////////////////////////////////////
 
     // Start on "MAXIMIZED" mode on iOS but "REGULAR" mode on Android
     flags: (Qt.platform.os === "ios") ? Qt.Window | Qt.MaximizeUsingFullscreenGeometryHint : Qt.Window
     visibility: Window.AutomaticVisibility
+
     property int windowmode: (Qt.platform.os === "ios") ? 1 : 0 // this is important if you toggle between window flags/visibilities
 
     // START IN "REGULAR" MODE
@@ -77,15 +76,8 @@ ApplicationWindow {
 
             // hacks
             if (Qt.platform.os === "android") {
-                if (Screen.primaryOrientation === Qt.PortraitOrientation) {
-                    if (appWindow.visibility === Window.FullScreen) {
-                        screenPaddingStatusbar = 0
-                        screenPaddingNavbar = 0
-                    } else {
-                        screenPaddingStatusbar = mobileUI.safeAreaTop
-                        screenPaddingTop = 0
-                    }
-                } else {
+                if (appWindow.visibility === Window.FullScreen) {
+                    screenPaddingStatusbar = 0
                     screenPaddingNavbar = 0
                 }
             }
@@ -93,9 +85,6 @@ ApplicationWindow {
             if (Qt.platform.os === "ios") {
                 if (appWindow.visibility === Window.FullScreen) {
                     screenPaddingStatusbar = 0
-                } else {
-                    screenPaddingStatusbar = mobileUI.safeAreaTop
-                    screenPaddingTop = 0
                 }
             }
         } else {
@@ -110,6 +99,7 @@ ApplicationWindow {
         console.log("> handleSafeAreas()")
         console.log("- window mode:         " + appWindow.visibility)
         console.log("- window flags:        " + appWindow.flags)
+        console.log("- screen dpi:          " + Screen.devicePixelRatio)
         console.log("- screen width:        " + Screen.width)
         console.log("- screen width avail:  " + Screen.desktopAvailableWidth)
         console.log("- screen height:       " + Screen.height)
@@ -166,117 +156,130 @@ ApplicationWindow {
     ////////////////////////////////////////////////////////////////////////////
 
     Item {
-        id: appContent
+        id: safeAreas
         anchors.fill: parent
 
-        ////////
+        visible: showSafeAreas
 
-        Item {
-            id: safeAreas
-            anchors.fill: parent
+        Rectangle {
+            id: topMarginVis
 
-            visible: showSafeAreas
+            anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.right: parent.right
 
-            Rectangle {
-                id: topMarginVis
+            height: screenPaddingTop
+            color: "red"
+            opacity: 0.1
+        }
+        Rectangle {
+            id: leftMarginVis
 
-                anchors.top: parent.top
-                anchors.left: parent.left
-                anchors.right: parent.right
+            anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.bottom: parent.bottom
 
-                height: screenPaddingTop
-                color: "red"
-                opacity: 0.1
-            }
-            Rectangle {
-                id: leftMarginVis
+            width: screenPaddingLeft
+            color: "red"
+            opacity: 0.1
+        }
+        Rectangle {
+            id: rightMarginVis
 
-                anchors.top: parent.top
-                anchors.left: parent.left
-                anchors.bottom: parent.bottom
+            anchors.top: parent.top
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
 
-                width: screenPaddingLeft
-                color: "red"
-                opacity: 0.1
-            }
-            Rectangle {
-                id: rightMarginVis
+            width: screenPaddingRight
+            color: "red"
+            opacity: 0.1
+        }
+        Rectangle {
+            id: bottomMarginVis
 
-                anchors.top: parent.top
-                anchors.right: parent.right
-                anchors.bottom: parent.bottom
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
 
-                width: screenPaddingRight
-                color: "red"
-                opacity: 0.1
-            }
-            Rectangle {
-                id: bottomMarginVis
+            height: screenPaddingBottom
+            color: "red"
+            opacity: 0.1
+        }
+    }
 
-                anchors.left: parent.left
-                anchors.right: parent.right
-                anchors.bottom: parent.bottom
+    ////////
 
-                height: screenPaddingBottom
-                color: "red"
-                opacity: 0.1
-            }
+    Item {
+        id: systemBars
+        anchors.fill: parent
+
+        visible: showSafeAreas
+
+        Rectangle {
+            id: statusbarVis
+            anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.right: parent.right
+
+            height: screenPaddingStatusbar
+            color: "blue"
+            opacity: 0.1
+        }
+        Rectangle {
+            id: navbarVis
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+
+            height: screenPaddingNavbar
+            color: "blue"
+            opacity: 0.1
         }
 
-        ////////
+        Rectangle {
+            id: statusbarUnderlay
+            anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.right: parent.right
 
-        Item {
-            id: systemBars
-            anchors.fill: parent
-
-            visible: showSafeAreas
-
-            Rectangle {
-                id: statusbarVis
-                anchors.top: parent.top
-                anchors.left: parent.left
-                anchors.right: parent.right
-
-                height: screenPaddingStatusbar
-                color: "blue"
-                opacity: 0.1
-            }
-            Rectangle {
-                id: navbarVis
-                anchors.left: parent.left
-                anchors.right: parent.right
-                anchors.bottom: parent.bottom
-
-                height: screenPaddingNavbar
-                color: "blue"
-                opacity: 0.1
-            }
-
-            Rectangle {
-                id: statusbarUnderlay
-                anchors.top: parent.top
-                anchors.left: parent.left
-                anchors.right: parent.right
-
-                visible: (Qt.platform.os === "ios" || appWindow.windowmode === 1)
-                height: screenPaddingStatusbar
-                color: "grey"
-                z: 10
-            }
+            visible: (Qt.platform.os === "ios" || appWindow.windowmode === 1)
+            height: screenPaddingStatusbar
+            color: "grey"
         }
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+
+    Item {
+        id: appContent
+
+        anchors.top: parent.top
+        anchors.topMargin: Math.max(screenPaddingStatusbar, screenPaddingTop)
+        anchors.left: parent.left
+        anchors.leftMargin: screenPaddingLeft
+        anchors.right: parent.right
+        anchors.rightMargin: screenPaddingRight
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: Math.max(screenPaddingNavbar, screenPaddingBottom)
 
         ////////
 
         ComboBox { // this combobox handle the status bar color+theme
             anchors.top: parent.top
-            anchors.topMargin: 16 + screenPaddingStatusbar + screenPaddingTop
+            anchors.topMargin: 16
             anchors.left: parent.left
             anchors.leftMargin: 16
             anchors.right: parent.right
             anchors.rightMargin: 16
 
-            visible: (Qt.platform.os === "android" || Qt.platform.os === "ios") &&
-                     (appWindow.visibility !== Window.FullScreen)
+            visible: {
+                if (Qt.platform.os !== "android" && Qt.platform.os !== "ios") return false
+                if (appWindow.visibility === Window.FullScreen) return false
+                if (appWindow.visibility === Window.Maximized && Qt.platform.os === "ios" &&
+                    appWindow.screenOrientation == Qt.LandscapeOrientation) return false
+
+                return true
+            }
 
             model: ListModel {
                 id: cbStatusbarColor
@@ -342,7 +345,6 @@ ApplicationWindow {
                     id: deviceThemeButton
                     anchors.horizontalCenter: parent.horizontalCenter
 
-                    visible: (Qt.platform.os === "android")
                     text: "device theme (?)"
                     onClicked: update()
 
@@ -475,7 +477,7 @@ ApplicationWindow {
             anchors.right: parent.right
             anchors.rightMargin: 16
             anchors.bottom: parent.bottom
-            anchors.bottomMargin: 16 + screenPaddingNavbar + screenPaddingBottom
+            anchors.bottomMargin: 16
             spacing: 8
 
             Row {
@@ -518,8 +520,7 @@ ApplicationWindow {
                 anchors.left: parent.left
                 anchors.right: parent.right
 
-                visible: (appWindow.windowmode === 0 &&
-                          Qt.platform.os === "android")
+                visible: (appWindow.windowmode === 0 && Qt.platform.os === "android")
 
                 model: ListModel {
                     id: cbNavbarColor
