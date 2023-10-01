@@ -57,6 +57,7 @@ jobs:
           target: 'android'
           arch: 'android_arm64_v8a'
           aqtversion: '==3.1.*'
+          py7zrversion: '==0.20.*'
           extra: '--autodesktop'
 
       # Setup env
@@ -73,11 +74,11 @@ jobs:
   ## iOS build #################################################################
   build-ios:
     name: "iOS CI build"
-    runs-on: macos-11
+    runs-on: macos-12
     steps:
       # Checkout the repository (and submodules)
       - name: Checkout repository (and submodules)
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: recursive
 
@@ -89,16 +90,17 @@ jobs:
           host: 'mac'
           target: 'ios'
           aqtversion: '==3.1.*'
+          py7zrversion: '==0.20.*'
           extra: '--autodesktop'
 
       # Setup env
       - name: Setup env
         run: |
-             ln -s /Users/runner/work/${{env.APP_NAME}}/Qt/${{env.QT_VERSION}}/macos /Users/runner/work/${{env.APPLICATION}}/Qt/${{env.QT_VERSION}}/clang_64
              qmake --version
+             alias nproc="sysctl -n hw.logicalcpu"
 
       # Build application
       - name: Build application
         run: |
              qmake ${{env.APP_NAME}}.pro CONFIG+=release
-             make
+             make -j$(nproc)

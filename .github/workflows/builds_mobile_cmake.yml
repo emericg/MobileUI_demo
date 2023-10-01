@@ -57,6 +57,7 @@ jobs:
           target: 'android'
           arch: 'android_arm64_v8a'
           aqtversion: '==3.1.*'
+          py7zrversion: '==0.20.*'
           extra: '--autodesktop'
 
       # Install dependencies (from package manager)
@@ -67,7 +68,8 @@ jobs:
       # Setup env
       - name: Setup env
         run: |
-             #echo "QT_HOST_PATH=/home/runner/work/${{env.APP_NAME}}/Qt/${{env.QT_VERSION}}/gcc_64" >> $GITHUB_ENV
+             export PATH=$Qt6_DIR/bin:$PATH
+             export QT_HOST_PATH=/home/runner/work/${{env.APP_NAME}}/Qt/${{env.QT_VERSION}}/gcc_64
              cmake --version
 
       # Build application
@@ -79,11 +81,11 @@ jobs:
   ## iOS build #################################################################
   build-ios:
     name: "iOS CI build"
-    runs-on: macos-11
+    runs-on: macos-12
     steps:
       # Checkout the repository (and submodules)
       - name: Checkout repository (and submodules)
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: recursive
 
@@ -95,6 +97,7 @@ jobs:
           host: 'mac'
           target: 'ios'
           aqtversion: '==3.1.*'
+          py7zrversion: '==0.20.*'
           extra: '--autodesktop'
 
       # Install dependencies (from package manager)
@@ -105,7 +108,8 @@ jobs:
       # Setup env
       - name: Setup env
         run: |
-             #echo "QT_HOST_PATH=/Users/runner/work/${{env.APP_NAME}}/Qt/${{env.QT_VERSION}}/macos" >> $GITHUB_ENV
+             export PATH=$Qt6_DIR/bin:$PATH
+             export QT_HOST_PATH=/Users/runner/work/${{env.APP_NAME}}/Qt/${{env.QT_VERSION}}/macos
              cmake --version
 
       # Build application
