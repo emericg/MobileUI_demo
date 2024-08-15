@@ -23,18 +23,18 @@ ApplicationWindow {
 
     // START IN "REGULAR" MODE
     //flags: Qt.Window
-    //property int windowmode: 0
     //visibility: Window.AutomaticVisibility
+    //property int windowmode: 0
 
     // START IN "MAXIMIZED" MODE
     //flags: Qt.Window | Qt.MaximizeUsingFullscreenGeometryHint
-    //property int windowmode: 1
     //visibility: Window.Maximized
+    //property int windowmode: 1
 
     // START IN "FULLSCREEN" MODE
     //flags: Qt.Window | Qt.MaximizeUsingFullscreenGeometryHint
-    //property int windowmode: 1
     //visibility: Window.FullScreen
+    //property int windowmode: 1
 
     // WINDOW ORIENTATION //////////////////////////////////////////////////////
 
@@ -43,8 +43,9 @@ ApplicationWindow {
     property int screenOrientation: Screen.primaryOrientation
     property int screenOrientationFull: Screen.orientation
 
-    onScreenOrientationChanged: handleSafeAreas()
+    onScreenOrientationFullChanged: handleSafeAreas()
     onVisibilityChanged: handleSafeAreas()
+    onWindowmodeChanged: handleSafeAreas()
 
     // SAFE AREAS //////////////////////////////////////////////////////////////
 
@@ -60,8 +61,9 @@ ApplicationWindow {
 
     function handleSafeAreas() {
         // safe areas handling is a work in progress /!\
-
         // safe areas are only taken into account when using maximized geometry / full screen mode
+
+        mobileUI.refreshUI() // hack
 
         if (appWindow.visibility === Window.FullScreen ||
             appWindow.flags & Qt.MaximizeUsingFullscreenGeometryHint) {
@@ -79,6 +81,17 @@ ApplicationWindow {
                 if (appWindow.visibility === Window.FullScreen) {
                     screenPaddingStatusbar = 0
                     screenPaddingNavbar = 0
+                }
+                if (appWindow.flags & Qt.MaximizeUsingFullscreenGeometryHint) {
+                    if (Screen.orientation === Qt.LandscapeOrientation) {
+                        screenPaddingLeft = screenPaddingStatusbar
+                        screenPaddingRight = screenPaddingNavbar
+                        screenPaddingNavbar = 0
+                    } else if (Screen.orientation === Qt.InvertedLandscapeOrientation) {
+                        screenPaddingLeft = screenPaddingNavbar
+                        screenPaddingRight = screenPaddingStatusbar
+                        screenPaddingNavbar = 0
+                    }
                 }
             }
             // hacks
@@ -159,7 +172,7 @@ ApplicationWindow {
         id: safeAreas
         anchors.fill: parent
 
-        visible: showSafeAreas
+        visible: appWindow.showSafeAreas
 
         Rectangle {
             id: topMarginVis
@@ -168,7 +181,7 @@ ApplicationWindow {
             anchors.left: parent.left
             anchors.right: parent.right
 
-            height: screenPaddingTop
+            height: appWindow.screenPaddingTop
             color: "red"
             opacity: 0.1
         }
@@ -179,7 +192,7 @@ ApplicationWindow {
             anchors.left: parent.left
             anchors.bottom: parent.bottom
 
-            width: screenPaddingLeft
+            width: appWindow.screenPaddingLeft
             color: "red"
             opacity: 0.1
         }
@@ -190,7 +203,7 @@ ApplicationWindow {
             anchors.right: parent.right
             anchors.bottom: parent.bottom
 
-            width: screenPaddingRight
+            width: appWindow.screenPaddingRight
             color: "red"
             opacity: 0.1
         }
@@ -201,7 +214,7 @@ ApplicationWindow {
             anchors.right: parent.right
             anchors.bottom: parent.bottom
 
-            height: screenPaddingBottom
+            height: appWindow.screenPaddingBottom
             color: "red"
             opacity: 0.1
         }
@@ -213,15 +226,15 @@ ApplicationWindow {
         id: systemBars
         anchors.fill: parent
 
-        visible: showSafeAreas
+        visible: appWindow.showSafeAreas
 
-        Rectangle {
+        Rectangle { // alwayse on top
             id: statusbarVis
             anchors.top: parent.top
             anchors.left: parent.left
             anchors.right: parent.right
 
-            height: screenPaddingStatusbar
+            height: appWindow.screenPaddingStatusbar
             color: "blue"
             opacity: 0.1
         }
@@ -231,7 +244,7 @@ ApplicationWindow {
             anchors.right: parent.right
             anchors.bottom: parent.bottom
 
-            height: screenPaddingNavbar
+            height: appWindow.screenPaddingNavbar
             color: "blue"
             opacity: 0.1
         }
@@ -243,7 +256,7 @@ ApplicationWindow {
             anchors.right: parent.right
 
             visible: (Qt.platform.os === "ios" || appWindow.windowmode === 1)
-            height: screenPaddingStatusbar
+            height: appWindow.screenPaddingStatusbar
             color: "grey"
         }
     }
@@ -254,13 +267,13 @@ ApplicationWindow {
         id: appContent
 
         anchors.top: parent.top
-        anchors.topMargin: Math.max(screenPaddingStatusbar, screenPaddingTop)
+        anchors.topMargin: Math.max(appWindow.screenPaddingTop, appWindow.screenPaddingStatusbar)
         anchors.left: parent.left
-        anchors.leftMargin: screenPaddingLeft
+        anchors.leftMargin: appWindow.screenPaddingLeft
         anchors.right: parent.right
-        anchors.rightMargin: screenPaddingRight
+        anchors.rightMargin: appWindow.screenPaddingRight
         anchors.bottom: parent.bottom
-        anchors.bottomMargin: Math.max(screenPaddingNavbar, screenPaddingBottom)
+        anchors.bottomMargin: Math.max(appWindow.screenPaddingBottom, appWindow.screenPaddingNavbar)
 
         ////////
 
@@ -308,9 +321,9 @@ ApplicationWindow {
                 anchors.horizontalCenter: parent.horizontalCenter
                 width: appContent.width * 0.75
 
-                text: "MobileUI doesn't do much when used on a desktop OS.<br>
-                       Every functions and variables are available and can be used without
-                       conditional checks, but without any functionnality behind them."
+                text: "MobileUI doesn't do much when used on a desktop OS.<br>" +
+                      "Every functions and variables are available and can be used without" +
+                      "conditional checks, but without any functionnality behind them."
 
                 wrapMode: Text.WordWrap
 
@@ -373,13 +386,10 @@ ApplicationWindow {
                         text: "regular"
                         highlighted: (appWindow.windowmode === 0)
                         onClicked: {
-                            if (appWindow.windowmode !== 0) {
-                                appWindow.windowmode = 0 // not re-setting same flags/visibility is important
-
+                            if (appWindow.windowmode !== 0) { // not re-setting same flags/visibility is important
+                                appWindow.windowmode = 0
                                 appWindow.flags = Qt.Window
                                 appWindow.visibility = Window.Maximized
-                                mobileUI.refreshUI()
-                                handleSafeAreas()
                             }
                         }
                     }
@@ -387,13 +397,10 @@ ApplicationWindow {
                         text: "maximized"
                         highlighted: (appWindow.windowmode === 1)
                         onClicked: {
-                            if (appWindow.windowmode !== 1) {
-                                appWindow.windowmode = 1 // not re-setting same flags/visibility is important
-
+                            if (appWindow.windowmode !== 1) { // not re-setting same flags/visibility is important
+                                appWindow.windowmode = 1
                                 appWindow.flags = Qt.Window | Qt.MaximizeUsingFullscreenGeometryHint
                                 appWindow.visibility = Window.Maximized
-                                mobileUI.refreshUI()
-                                handleSafeAreas()
                             }
                         }
                     }
@@ -401,13 +408,10 @@ ApplicationWindow {
                         text: "fullscreen"
                         highlighted: (appWindow.windowmode === 2)
                         onClicked: {
-                            if (appWindow.windowmode !== 2) {
-                                appWindow.windowmode = 2 // not re-setting same flags/visibility is important
-
+                            if (appWindow.windowmode !== 2) { // not re-setting same flags/visibility is important
+                                appWindow.windowmode = 2
                                 appWindow.flags = Qt.Window | Qt.MaximizeUsingFullscreenGeometryHint
                                 appWindow.visibility = Window.FullScreen
-                                mobileUI.refreshUI()
-                                handleSafeAreas()
                             }
                         }
                     }
@@ -426,27 +430,27 @@ ApplicationWindow {
                     spacing: 8
 
                     Button {
-                        text: "left"
+                        text: "←"
                         highlighted: (mobileUI.screenOrientation === MobileUI.Landscape_left)
                         onClicked: mobileUI.setScreenOrientation(MobileUI.Landscape_left)
                     }
                     Button {
-                        text: "up"
+                        text: "↑"
                         highlighted: (mobileUI.screenOrientation === MobileUI.Portrait)
                         onClicked: mobileUI.setScreenOrientation(MobileUI.Portrait)
                     }
                     Button {
-                        text: "0"
+                        text: "auto"
                         highlighted: (mobileUI.screenOrientation === MobileUI.Unlocked)
                         onClicked: mobileUI.setScreenOrientation(MobileUI.Unlocked)
                     }
                     Button {
-                        text: "down"
+                        text: "↓"
                         highlighted: (mobileUI.screenOrientation === MobileUI.Portrait_upsidedown)
                         onClicked: mobileUI.setScreenOrientation(MobileUI.Portrait_upsidedown)
                     }
                     Button {
-                        text: "right"
+                        text: "→"
                         highlighted: (mobileUI.screenOrientation === MobileUI.Landscape_right)
                         onClicked: mobileUI.setScreenOrientation(MobileUI.Landscape_right)
                     }
@@ -455,9 +459,9 @@ ApplicationWindow {
                 Button {
                     anchors.horizontalCenter: parent.horizontalCenter
 
-                    text: "show safe areas"
-                    highlighted: showSafeAreas
-                    onClicked: showSafeAreas = !showSafeAreas
+                    text: "show unsafe areas"
+                    highlighted: appWindow.showSafeAreas
+                    onClicked: appWindow.showSafeAreas = !appWindow.showSafeAreas
                 }
 
                 Button {
@@ -484,11 +488,11 @@ ApplicationWindow {
                 anchors.right: parent.right
                 spacing: 8
 
-                visible: showSafeAreas
+                visible: appWindow.showSafeAreas
 
                 Text {
                     anchors.verticalCenter: parent.verticalCenter
-                    text: "Safe areas"
+                    text: "Unsafe areas"
                 }
                 Rectangle {
                     width: 16
@@ -502,7 +506,7 @@ ApplicationWindow {
                 anchors.right: parent.right
                 spacing: 8
 
-                visible: showSafeAreas
+                visible: appWindow.showSafeAreas
 
                 Text {
                     anchors.verticalCenter: parent.verticalCenter
