@@ -6,6 +6,7 @@ name: "Mobile CI builds (cmake)"
 on:
   push:
   pull_request:
+  workflow_dispatch:
 
 #-------------------------------------------------------------------------------
 # Define application name & version
@@ -26,38 +27,36 @@ jobs:
     name: "Android CI build"
     runs-on: ubuntu-20.04
     steps:
-      # Checkout the repository (and submodules)
+      # Checkout repository (and submodules)
       - name: Checkout repository (and submodules)
         uses: actions/checkout@v4
         with:
           submodules: recursive
 
       # Java environment (already installed in 'ubuntu-20.04')
-      #- name: Install JDK environment
-      #  uses: actions/setup-java@v2
-      #  with:
-      #    distribution: 'zulu'
-      #    java-version: '11'
+      - name: Setup Java environment
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
 
       # Android environment (already installed in 'ubuntu-20.04')
-      #- name: Setup Android SDK
-      #  uses: android-actions/setup-android@v2
+      #- name: Setup Android environment
+      #  uses: android-actions/setup-android@v3
       #- name: Install Android SDK / NDK / tools
       #  run: |
-      #       sdkmanager "platforms;android-33"
-      #       sdkmanager "ndk;25.2.9519653"
-      #       sdkmanager "build-tools;33.0.2"
+      #       sdkmanager "platforms;android-34"
+      #       sdkmanager "ndk;26.3.11579264"
+      #       sdkmanager "build-tools;34.0.0"
 
-      # Install Qt (Android & desktop)
-      - name: Install Qt (Android & desktop)
-        uses: jurplel/install-qt-action@v3
+      # Install Qt (desktop & Android)
+      - name: Install Qt (desktop & Android)
+        uses: jurplel/install-qt-action@v4
         with:
           version: ${{env.QT_VERSION}}
           host: 'linux'
           target: 'android'
           arch: 'android_arm64_v8a'
-          aqtversion: '==3.1.*'
-          py7zrversion: '==0.20.*'
           extra: '--autodesktop'
 
       # Install dependencies (from package manager)
@@ -68,36 +67,46 @@ jobs:
       # Setup env
       - name: Setup env
         run: |
-             export PATH=$Qt6_DIR/bin:$PATH
-             export QT_HOST_PATH=/home/runner/work/${{env.APP_NAME}}/Qt/${{env.QT_VERSION}}/gcc_64
-             cmake --version
+             echo "QT_HOST_PATH=/home/runner/work/${{env.APP_NAME}}/Qt/${{env.QT_VERSION}}/gcc_64" >> $GITHUB_ENV
+             echo "QT_TARGET_PATH=/home/runner/work/${{env.APP_NAME}}/Qt/${{env.QT_VERSION}}/android_arm64_v8a" >> $GITHUB_ENV
 
       # Build application
       - name: Build application
         run: |
-             cmake .
-             cmake --build .
+             cmake --version
+             cmake -B build/ -G Ninja \
+               -DCMAKE_SYSTEM_NAME=Android \
+               -DCMAKE_BUILD_TYPE=Release \
+               -DCMAKE_FIND_ROOT_PATH:PATH=${{env.QT_TARGET_PATH}} \
+               -DCMAKE_PREFIX_PATH:PATH=${{env.QT_TARGET_PATH}} \
+               -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_ROOT/build/cmake/android.toolchain.cmake \
+               -DANDROID_SDK_ROOT=$ANDROID_SDK_ROOT \
+               -DANDROID_NDK_ROOT=$ANDROID_NDK_ROOT \
+               -DANDROID_PLATFORM=android-23 \
+               -DANDROID_ABI="arm64-v8a" \
+               -DQT_HOST_PATH:PATH=${{env.QT_HOST_PATH}} \
+               -DQT_ANDROID_BUILD_ALL_ABIS=ON \
+               -DQT_ANDROID_ABIS="armeabi-v7a;arm64-v8a;x86;x86_64"
+             cmake --build build/ --config Release
 
   ## iOS build #################################################################
   build-ios:
     name: "iOS CI build"
     runs-on: macos-12
     steps:
-      # Checkout the repository (and submodules)
+      # Checkout repository (and submodules)
       - name: Checkout repository (and submodules)
         uses: actions/checkout@v4
         with:
           submodules: recursive
 
-      # Install Qt (iOS & desktop)
-      - name: Install Qt (iOS & desktop)
-        uses: jurplel/install-qt-action@v3
+      # Install Qt (desktop & iOS)
+      - name: Install Qt (desktop & iOS)
+        uses: jurplel/install-qt-action@v4
         with:
           version: ${{env.QT_VERSION}}
           host: 'mac'
           target: 'ios'
-          aqtversion: '==3.1.*'
-          py7zrversion: '==0.20.*'
           extra: '--autodesktop'
 
       # Install dependencies (from package manager)
@@ -108,12 +117,20 @@ jobs:
       # Setup env
       - name: Setup env
         run: |
-             export PATH=$Qt6_DIR/bin:$PATH
-             export QT_HOST_PATH=/Users/runner/work/${{env.APP_NAME}}/Qt/${{env.QT_VERSION}}/macos
-             cmake --version
+             echo "QT_HOST_PATH=/Users/runner/work/${{env.APP_NAME}}/Qt/${{env.QT_VERSION}}/macos" >> $GITHUB_ENV
+             echo "QT_TARGET_PATH=/Users/runner/work/${{env.APP_NAME}}/Qt/${{env.QT_VERSION}}/ios" >> $GITHUB_ENV
 
       # Build application
       - name: Build application
         run: |
-             cmake .
-             cmake --build .
+             cmake --version
+             cmake -B build/ -G Xcode \
+               -DCMAKE_SYSTEM_NAME=iOS \
+               -DCMAKE_BUILD_TYPE=Release \
+               -DCMAKE_FIND_ROOT_PATH:PATH=${{env.QT_TARGET_PATH}} \
+               -DCMAKE_PREFIX_PATH:PATH=${{env.QT_TARGET_PATH}} \
+               -DCMAKE_TOOLCHAIN_FILE=assets/ios/ios.toolchain.cmake \
+               -DQT_HOST_PATH:PATH=${{env.QT_HOST_PATH}} \
+               -DENABLE_ARC=FALSE \
+               -DPLATFORM=OS64
+             cmake --build build/ --config Release

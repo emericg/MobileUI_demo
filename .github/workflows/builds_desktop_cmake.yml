@@ -6,6 +6,7 @@ name: "Desktop CI builds (cmake)"
 on:
   push:
   pull_request:
+  workflow_dispatch:
 
 #-------------------------------------------------------------------------------
 # Define application name & version
@@ -26,7 +27,7 @@ jobs:
     name: "Linux CI build"
     runs-on: ubuntu-20.04
     steps:
-      # Checkout the repository (and submodules)
+      # Checkout repository (and submodules)
       - name: Checkout repository (and submodules)
         uses: actions/checkout@v4
         with:
@@ -34,7 +35,7 @@ jobs:
 
       # Install Qt
       - name: Install Qt
-        uses: jurplel/install-qt-action@v3
+        uses: jurplel/install-qt-action@v4
         with:
           version: ${{env.QT_VERSION}}
 
