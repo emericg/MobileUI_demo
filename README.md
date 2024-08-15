@@ -17,9 +17,9 @@ You can report bugs or request features directly on the [MobileUI issue page](ht
 
 ### Dependencies
 
-You will need a C++17 compiler and Qt 6.5+ to run this demo as is, but you can adapt it down to Qt 5.15 if you want.  
+You will need a C++17 compiler and Qt 6.5 LTS to run this demo as is, but you can adapt it up to Qt 6.8+ or down to Qt 5.15 if you want.  
 For macOS and iOS builds, you'll need Xcode (13+) installed.  
-For Android builds, you'll need the appropriates JDK (11) SDK (24+) and NDK (25+). You can customize Android build environment using the `assets/android/gradle.properties` file.  
+For Android builds, you'll need the appropriates JDK (17) SDK (24+) and NDK (25+). You can customize Android build environment using the `assets/android/gradle.properties` file.  
 
 #### Building
 

@@ -39,8 +39,6 @@ if(ANDROID)
     set_target_properties(MobileUI_demo PROPERTIES
         QT_ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/assets/android"
     )
-
-    target_link_libraries(MobileUI_demo PRIVATE Qt::CorePrivate)
 endif()
 
 ## macOS
@@ -51,10 +49,7 @@ endif()
 
 ## iOS
 if(IOS)
-    target_link_libraries(MobileUI_demo PRIVATE
-        Qt::GuiPrivate
-        "-framework UIKit"
-    )
+    #
 endif()
 
 ################################################################################

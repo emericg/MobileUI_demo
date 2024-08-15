@@ -5,8 +5,8 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.4.2' // works with Qt 6.5
-        //classpath 'com.android.tools.build:gradle:7.2.1' // works with Qt 6.4
+        //classpath 'com.android.tools.build:gradle:8.5.1' // works with Qt 6.8+ // Java 17
+        classpath 'com.android.tools.build:gradle:8.1.4' // works with Qt 6.5+ // Java 17
     }
 }
 
@@ -35,9 +35,7 @@ android {
      * Changing them manually might break the compilation!
      *******************************************************/
 
-    namespace 'com.emeric.mobileuidemo'
-
-    compileSdkVersion androidCompileSdkVersion.toInteger()
+    compileSdkVersion androidCompileSdkVersion
     buildToolsVersion androidBuildToolsVersion
     ndkVersion androidNdkVersion
 
@@ -59,8 +57,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     packagingOptions {
@@ -83,5 +81,7 @@ android {
         minSdkVersion qtMinSdkVersion
         targetSdkVersion qtTargetSdkVersion
         ndk.abiFilters = qtTargetAbiList.split(",")
+
+        namespace "io.emeric.mobileuidemo"
     }
 }
