@@ -28,10 +28,6 @@ qt_standard_project_setup(REQUIRES 6.5)
 
 qt_add_executable(${CMAKE_PROJECT_NAME} src/main.cpp qml/qml.qrc)
 
-# MobileUI
-add_subdirectory(MobileUI/)
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE MobileUI)
-
 ################################################################################
 
 ## Android
