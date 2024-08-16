@@ -15,26 +15,20 @@ ApplicationWindow {
 
     // WINDOW MODE /////////////////////////////////////////////////////////////
 
-    // Start on "MAXIMIZED" mode on iOS but "REGULAR" mode on Android
-    flags: (Qt.platform.os === "ios") ? Qt.Window | Qt.MaximizeUsingFullscreenGeometryHint : Qt.Window
-    visibility: Window.AutomaticVisibility
-
-    property int windowmode: (Qt.platform.os === "ios") ? 1 : 0 // this is important if you toggle between window flags/visibilities
-
     // START IN "REGULAR" MODE
     //flags: Qt.Window
     //visibility: Window.AutomaticVisibility
     //property int windowmode: 0
 
     // START IN "MAXIMIZED" MODE
-    //flags: Qt.Window | Qt.MaximizeUsingFullscreenGeometryHint
-    //visibility: Window.Maximized
-    //property int windowmode: 1
+    flags: Qt.Window | Qt.MaximizeUsingFullscreenGeometryHint
+    visibility: Window.Maximized
+    property int windowmode: 1
 
     // START IN "FULLSCREEN" MODE
     //flags: Qt.Window | Qt.MaximizeUsingFullscreenGeometryHint
     //visibility: Window.FullScreen
-    //property int windowmode: 1
+    //property int windowmode: 2
 
     // WINDOW ORIENTATION //////////////////////////////////////////////////////
 
@@ -42,10 +36,6 @@ ApplicationWindow {
     // 4 = Qt.InvertedPortraitOrientation, 8 = Qt.InvertedLandscapeOrientation
     property int screenOrientation: Screen.primaryOrientation
     property int screenOrientationFull: Screen.orientation
-
-    onScreenOrientationFullChanged: handleSafeAreas()
-    onVisibilityChanged: handleSafeAreas()
-    onWindowmodeChanged: handleSafeAreas()
 
     // SAFE AREAS //////////////////////////////////////////////////////////////
 
@@ -59,72 +49,127 @@ ApplicationWindow {
     property int screenPaddingRight: 0
     property int screenPaddingBottom: 0
 
-    function handleSafeAreas() {
-        // safe areas handling is a work in progress /!\
-        // safe areas are only taken into account when using maximized geometry / full screen mode
+    ////////////////////////////////////////////////////////////////////////////
 
-        mobileUI.refreshUI() // hack
+    Connections {
+        target: Screen
+        function onOrientationChanged() { mobileUI.handleSafeAreas() }
+    }
 
-        if (appWindow.visibility === Window.FullScreen ||
-            appWindow.flags & Qt.MaximizeUsingFullscreenGeometryHint) {
+    MobileUI {
+        id: mobileUI
 
-            screenPaddingStatusbar = mobileUI.statusbarHeight
-            screenPaddingNavbar = mobileUI.navbarHeight
+        statusbarColor: "grey"
+        statusbarTheme: MobileUI.Dark
 
-            screenPaddingTop = mobileUI.safeAreaTop
-            screenPaddingLeft = mobileUI.safeAreaLeft
-            screenPaddingRight = mobileUI.safeAreaRight
-            screenPaddingBottom = mobileUI.safeAreaBottom
+        navbarColor: "grey"
+        navbarTheme: MobileUI.Dark
 
-            // hacks
-            if (Qt.platform.os === "android") {
-                if (appWindow.visibility === Window.FullScreen) {
-                    screenPaddingStatusbar = 0
-                    screenPaddingNavbar = 0
-                }
-                if (appWindow.flags & Qt.MaximizeUsingFullscreenGeometryHint) {
-                    if (Screen.orientation === Qt.LandscapeOrientation) {
-                        screenPaddingLeft = screenPaddingStatusbar
-                        screenPaddingRight = screenPaddingNavbar
-                        screenPaddingNavbar = 0
-                    } else if (Screen.orientation === Qt.InvertedLandscapeOrientation) {
-                        screenPaddingLeft = screenPaddingNavbar
-                        screenPaddingRight = screenPaddingStatusbar
+        Component.onCompleted: handleSafeAreas()
+
+        function handleSafeAreas() {
+            // safe areas handling is a work in progress /!\
+            // safe areas are only taken into account when using maximized geometry / full screen mode
+
+            mobileUI.refreshUI() // hack
+
+            if (appWindow.visibility === Window.FullScreen ||
+                appWindow.flags & Qt.MaximizeUsingFullscreenGeometryHint) {
+
+                screenPaddingStatusbar = mobileUI.statusbarHeight
+                screenPaddingNavbar = mobileUI.navbarHeight
+
+                screenPaddingTop = mobileUI.safeAreaTop
+                screenPaddingLeft = mobileUI.safeAreaLeft
+                screenPaddingRight = mobileUI.safeAreaRight
+                screenPaddingBottom = mobileUI.safeAreaBottom
+
+                // hacks
+                if (Qt.platform.os === "android") {
+                    if (appWindow.visibility === Window.FullScreen) {
+                        screenPaddingStatusbar = 0
                         screenPaddingNavbar = 0
                     }
+                    if (appWindow.flags & Qt.MaximizeUsingFullscreenGeometryHint) {
+                        //if (isPhone)
+                        if (Screen.orientation === Qt.LandscapeOrientation) {
+                            screenPaddingLeft = screenPaddingStatusbar
+                            screenPaddingRight = screenPaddingNavbar
+                            screenPaddingNavbar = 0
+                        } else if (Screen.orientation === Qt.InvertedLandscapeOrientation) {
+                            screenPaddingLeft = screenPaddingNavbar
+                            screenPaddingRight = screenPaddingStatusbar
+                            screenPaddingNavbar = 0
+                        }
+                    }
                 }
-            }
-            // hacks
-            if (Qt.platform.os === "ios") {
-                if (appWindow.visibility === Window.FullScreen) {
-                    screenPaddingStatusbar = 0
+                // hacks
+                if (Qt.platform.os === "ios") {
+                    if (appWindow.visibility === Window.FullScreen) {
+                        screenPaddingStatusbar = 0
+                    }
                 }
+            } else {
+                screenPaddingStatusbar = 0
+                screenPaddingNavbar = 0
+                screenPaddingTop = 0
+                screenPaddingLeft = 0
+                screenPaddingRight = 0
+                screenPaddingBottom = 0
             }
-        } else {
-            screenPaddingStatusbar = 0
-            screenPaddingNavbar = 0
-            screenPaddingTop = 0
-            screenPaddingLeft = 0
-            screenPaddingRight = 0
-            screenPaddingBottom = 0
+
+            console.log("> handleSafeAreas()")
+            console.log("- window mode:         " + appWindow.visibility)
+            console.log("- window flags:        " + appWindow.flags)
+            console.log("- screen dpi:          " + Screen.devicePixelRatio)
+            console.log("- screen width:        " + Screen.width)
+            console.log("- screen width avail:  " + Screen.desktopAvailableWidth)
+            console.log("- screen height:       " + Screen.height)
+            console.log("- screen height avail: " + Screen.desktopAvailableHeight)
+            console.log("- screen orientation (full): " + Screen.orientation)
+            console.log("- screen orientation (primary): " + Screen.primaryOrientation)
+            console.log("- screenSizeStatusbar: " + screenPaddingStatusbar)
+            console.log("- screenSizeNavbar:    " + screenPaddingNavbar)
+            console.log("- screenPaddingTop:    " + screenPaddingTop)
+            console.log("- screenPaddingLeft:   " + screenPaddingLeft)
+            console.log("- screenPaddingRight:  " + screenPaddingRight)
+            console.log("- screenPaddingBottom: " + screenPaddingBottom)
         }
 
-        console.log("> handleSafeAreas()")
-        console.log("- window mode:         " + appWindow.visibility)
-        console.log("- window flags:        " + appWindow.flags)
-        console.log("- screen dpi:          " + Screen.devicePixelRatio)
-        console.log("- screen width:        " + Screen.width)
-        console.log("- screen width avail:  " + Screen.desktopAvailableWidth)
-        console.log("- screen height:       " + Screen.height)
-        console.log("- screen height avail: " + Screen.desktopAvailableHeight)
-        console.log("- screen orientation (full): " + Screen.orientation)
-        console.log("- screen orientation (primary): " + Screen.primaryOrientation)
-        console.log("- screenSizeStatusbar: " + screenPaddingStatusbar)
-        console.log("- screenSizeNavbar:    " + screenPaddingNavbar)
-        console.log("- screenPaddingTop:    " + screenPaddingTop)
-        console.log("- screenPaddingLeft:   " + screenPaddingLeft)
-        console.log("- screenPaddingRight:  " + screenPaddingRight)
-        console.log("- screenPaddingBottom: " + screenPaddingBottom)
+        function setRegular() {
+            if (Qt.platform.os === "android") { // hacks
+                if (appWindow.windowmode === 2) return
+            }
+            if (appWindow.windowmode !== 0) { // not re-setting same flags/visibility is important
+                appWindow.windowmode = 0
+                appWindow.flags &= ~Qt.MaximizeUsingFullscreenGeometryHint
+                appWindow.showMaximized()
+                handleSafeAreas()
+            }
+        }
+        function setMaximized() {
+            if (Qt.platform.os === "android") { // hacks
+                if (appWindow.windowmode !== 1)
+                    if (appWindow.windowmode === 0) appWindow.showFullScreen()
+            }
+            if (appWindow.windowmode !== 1) { // not re-setting same flags/visibility is important
+                appWindow.windowmode = 1
+                appWindow.flags |= Qt.MaximizeUsingFullscreenGeometryHint
+                appWindow.showMaximized()
+                handleSafeAreas()
+            }
+        }
+        function setFullScreen() {
+            if (Qt.platform.os === "android") { // hacks
+                if (appWindow.windowmode === 0) return
+            }
+            if (appWindow.windowmode !== 2) { // not re-setting same flags/visibility is important
+                appWindow.windowmode = 2
+                appWindow.flags |= Qt.MaximizeUsingFullscreenGeometryHint
+                appWindow.showFullScreen()
+                handleSafeAreas()
+            }
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -153,17 +198,6 @@ ApplicationWindow {
                     break
             }
         }
-    }
-
-    ////////////////////////////////////////////////////////////////////////////
-
-    MobileUI {
-        id: mobileUI
-
-        statusbarColor: "grey"
-        statusbarTheme: MobileUI.Dark
-        navbarColor: "grey"
-        navbarTheme: MobileUI.Dark
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -385,35 +419,17 @@ ApplicationWindow {
                     Button {
                         text: "regular"
                         highlighted: (appWindow.windowmode === 0)
-                        onClicked: {
-                            if (appWindow.windowmode !== 0) { // not re-setting same flags/visibility is important
-                                appWindow.windowmode = 0
-                                appWindow.flags = Qt.Window
-                                appWindow.visibility = Window.Maximized
-                            }
-                        }
+                        onClicked: mobileUI.setRegular()
                     }
                     Button {
                         text: "maximized"
                         highlighted: (appWindow.windowmode === 1)
-                        onClicked: {
-                            if (appWindow.windowmode !== 1) { // not re-setting same flags/visibility is important
-                                appWindow.windowmode = 1
-                                appWindow.flags = Qt.Window | Qt.MaximizeUsingFullscreenGeometryHint
-                                appWindow.visibility = Window.Maximized
-                            }
-                        }
+                        onClicked: mobileUI.setMaximized()
                     }
                     Button {
                         text: "fullscreen"
                         highlighted: (appWindow.windowmode === 2)
-                        onClicked: {
-                            if (appWindow.windowmode !== 2) { // not re-setting same flags/visibility is important
-                                appWindow.windowmode = 2
-                                appWindow.flags = Qt.Window | Qt.MaximizeUsingFullscreenGeometryHint
-                                appWindow.visibility = Window.FullScreen
-                            }
-                        }
+                        onClicked: mobileUI.setFullScreen()
                     }
                 }
             }
