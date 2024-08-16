@@ -200,6 +200,13 @@ ApplicationWindow {
         }
     }
 
+    onClosing: (close) => {
+        if (Qt.platform.os == "android") {
+            close.accepted = false
+            mobileUI.backToHomeScreen()
+        }
+    }
+
     ////////////////////////////////////////////////////////////////////////////
 
     Item {
@@ -297,7 +304,7 @@ ApplicationWindow {
 
     ////////////////////////////////////////////////////////////////////////////
 
-    Item {
+    FocusScope {
         id: appContent
 
         anchors.top: parent.top
@@ -308,6 +315,10 @@ ApplicationWindow {
         anchors.rightMargin: appWindow.screenPaddingRight
         anchors.bottom: parent.bottom
         anchors.bottomMargin: Math.max(appWindow.screenPaddingBottom, appWindow.screenPaddingNavbar)
+
+        Keys.onBackPressed: {
+            mobileUI.backToHomeScreen()
+        }
 
         ////////
 
@@ -478,6 +489,26 @@ ApplicationWindow {
                     text: "show unsafe areas"
                     highlighted: appWindow.showSafeAreas
                     onClicked: appWindow.showSafeAreas = !appWindow.showSafeAreas
+                }
+
+                Row {
+                    anchors.horizontalCenter: parent.horizontalCenter
+
+                    Button {
+                        id: screenBrightnessButton
+                        text: "brightness (" + mobileUI.screenBrightness + ")"
+                        onClicked: text = "brightness (" + mobileUI.screenBrightness + ")"
+                    }
+
+                    Slider {
+                        from: 0
+                        to: 100
+                        value: mobileUI.screenBrightness
+                        onMoved: {
+                            mobileUI.screenBrightness = value
+                            screenBrightnessButton.text = "brightness (" + mobileUI.screenBrightness + ")"
+                        }
+                    }
                 }
 
                 Button {
