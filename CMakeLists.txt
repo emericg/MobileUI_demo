@@ -33,8 +33,8 @@ qt_add_executable(${CMAKE_PROJECT_NAME} src/main.cpp qml/qml.qrc)
 ## Android
 if(ANDROID)
     set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES
-        QT_ANDROID_ABIS "armeabi-v7a;arm64-v8a;x86;x86_64"
-        QT_ANDROID_BUILD_ALL_ABIS ON
+        #QT_ANDROID_ABIS "armeabi-v7a;arm64-v8a;x86;x86_64"
+        #QT_ANDROID_BUILD_ALL_ABIS ON
         QT_ANDROID_MIN_SDK_VERSION 23
         QT_ANDROID_TARGET_SDK_VERSION 35
         QT_ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/assets/android/"
@@ -55,11 +55,12 @@ if(IOS)
         # Old way ???
         MACOSX_BUNDLE_GUI_IDENTIFIER            "io.emeric.mobileuidemo"
         MACOSX_BUNDLE_BUNDLE_NAME               ${CMAKE_PROJECT_NAME}
+        MACOSX_BUNDLE_BUNDLE_VERSION            ${CMAKE_PROJECT_VERSION}
         MACOSX_BUNDLE_INFO_PLIST                "${CMAKE_CURRENT_SOURCE_DIR}/assets/ios/Info.plist"
-        #QT_IOS_LAUNCH_SCREEN                    "${CMAKE_CURRENT_SOURCE_DIR}/assets/ios/LaunchScreen.storyboard"
         # New Xcode attributes ???
         XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER           "io.emeric.mobileuidemo"
         XCODE_ATTRIBUTE_PRODUCT_NAME                        ${CMAKE_PROJECT_NAME}
+        XCODE_ATTRIBUTE_CURRENT_PROJECT_VERSION
         XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET          "14.0"
         XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY              "1,2"   # iPhone,iPad
     )
