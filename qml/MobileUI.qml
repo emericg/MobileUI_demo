@@ -35,7 +35,6 @@ ApplicationWindow {
     // 1 = Qt.PortraitOrientation, 2 = Qt.LandscapeOrientation
     // 4 = Qt.InvertedPortraitOrientation, 8 = Qt.InvertedLandscapeOrientation
     property int screenOrientation: Screen.primaryOrientation
-    property int screenOrientationFull: Screen.orientation
 
     // SAFE AREAS //////////////////////////////////////////////////////////////
 
@@ -91,15 +90,16 @@ ApplicationWindow {
                         screenPaddingNavbar = 0
                     }
                     if (appWindow.flags & Qt.MaximizeUsingFullscreenGeometryHint) {
-                        //if (isPhone)
-                        if (Screen.orientation === Qt.LandscapeOrientation) {
-                            screenPaddingLeft = screenPaddingStatusbar
-                            screenPaddingRight = screenPaddingNavbar
-                            screenPaddingNavbar = 0
-                        } else if (Screen.orientation === Qt.InvertedLandscapeOrientation) {
-                            screenPaddingLeft = screenPaddingNavbar
-                            screenPaddingRight = screenPaddingStatusbar
-                            screenPaddingNavbar = 0
+                        if (mobileUI.isPhone) {
+                            if (Screen.orientation === Qt.LandscapeOrientation) {
+                                screenPaddingLeft = screenPaddingStatusbar
+                                screenPaddingRight = screenPaddingNavbar
+                                screenPaddingNavbar = 0
+                            } else if (Screen.orientation === Qt.InvertedLandscapeOrientation) {
+                                screenPaddingLeft = screenPaddingNavbar
+                                screenPaddingRight = screenPaddingStatusbar
+                                screenPaddingNavbar = 0
+                            }
                         }
                     }
                 }
@@ -333,8 +333,9 @@ ApplicationWindow {
             visible: {
                 if (Qt.platform.os !== "android" && Qt.platform.os !== "ios") return false
                 if (appWindow.visibility === Window.FullScreen) return false
-                if (appWindow.visibility === Window.Maximized && Qt.platform.os === "ios" &&
-                    appWindow.screenOrientation == Qt.LandscapeOrientation) return false
+                if (appWindow.visibility === Window.Maximized &&
+                    appWindow.screenOrientation == Qt.LandscapeOrientation &&
+                    Qt.platform.os === "ios" && mobileUI.isPhone) return false
 
                 return true
             }
@@ -395,9 +396,8 @@ ApplicationWindow {
                 width: (appWindow.screenOrientation == Qt.PortraitOrientation)
                         ? appWindow.width : appWindow.width / 2
 
-                spacing: 16
-
                 visible: (Qt.platform.os === "android" || Qt.platform.os === "ios")
+                spacing: 16
 
                 Button {
                     id: deviceThemeButton
@@ -456,30 +456,47 @@ ApplicationWindow {
                     anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 8
 
+                    property int forcedOrientation: MobileUI.Unlocked
+
                     Button {
                         text: "←"
-                        highlighted: (mobileUI.screenOrientation === MobileUI.Landscape_left)
-                        onClicked: mobileUI.setScreenOrientation(MobileUI.Landscape_left)
+                        highlighted: (parent.forcedOrientation === MobileUI.Landscape_left)
+                        onClicked: {
+                            mobileUI.setScreenOrientation(MobileUI.Landscape_left)
+                            parent.forcedOrientation = MobileUI.Landscape_left
+                        }
                     }
                     Button {
                         text: "↑"
-                        highlighted: (mobileUI.screenOrientation === MobileUI.Portrait)
-                        onClicked: mobileUI.setScreenOrientation(MobileUI.Portrait)
+                        highlighted: (parent.forcedOrientation === MobileUI.Portrait)
+                        onClicked: {
+                            mobileUI.setScreenOrientation(MobileUI.Portrait)
+                            parent.forcedOrientation = MobileUI.Portrait
+                        }
                     }
                     Button {
                         text: "auto"
-                        highlighted: (mobileUI.screenOrientation === MobileUI.Unlocked)
-                        onClicked: mobileUI.setScreenOrientation(MobileUI.Unlocked)
+                        highlighted: (parent.forcedOrientation === MobileUI.Unlocked)
+                        onClicked: {
+                            mobileUI.setScreenOrientation(MobileUI.Unlocked)
+                            parent.forcedOrientation = MobileUI.Unlocked
+                        }
                     }
                     Button {
                         text: "↓"
-                        highlighted: (mobileUI.screenOrientation === MobileUI.Portrait_upsidedown)
-                        onClicked: mobileUI.setScreenOrientation(MobileUI.Portrait_upsidedown)
+                        highlighted: (parent.forcedOrientation === MobileUI.Portrait_upsidedown)
+                        onClicked: {
+                            mobileUI.setScreenOrientation(MobileUI.Portrait_upsidedown)
+                            parent.forcedOrientation = MobileUI.Portrait_upsidedown
+                        }
                     }
                     Button {
                         text: "→"
-                        highlighted: (mobileUI.screenOrientation === MobileUI.Landscape_right)
-                        onClicked: mobileUI.setScreenOrientation(MobileUI.Landscape_right)
+                        highlighted: (parent.forcedOrientation === MobileUI.Landscape_right)
+                        onClicked: {
+                            mobileUI.setScreenOrientation(MobileUI.Landscape_right)
+                            parent.forcedOrientation = MobileUI.Landscape_right
+                        }
                     }
                 }
 
@@ -493,6 +510,7 @@ ApplicationWindow {
 
                 Row {
                     anchors.horizontalCenter: parent.horizontalCenter
+                    spacing: 8
 
                     Button {
                         id: screenBrightnessButton
@@ -513,6 +531,8 @@ ApplicationWindow {
 
                 Button {
                     anchors.horizontalCenter: parent.horizontalCenter
+
+                    visible: !(Qt.platform.os === "ios" && mobileUI.isTablet)
 
                     text: "vibrate"
                     onClicked: mobileUI.vibrate()
@@ -542,6 +562,7 @@ ApplicationWindow {
                     text: "Unsafe areas"
                 }
                 Rectangle {
+                    anchors.verticalCenter: parent.verticalCenter
                     width: 16
                     height: 16
                     color: "red"
