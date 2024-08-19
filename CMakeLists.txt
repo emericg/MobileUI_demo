@@ -60,7 +60,7 @@ if(IOS)
         # New Xcode attributes ???
         XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER           "io.emeric.mobileuidemo"
         XCODE_ATTRIBUTE_PRODUCT_NAME                        ${CMAKE_PROJECT_NAME}
-        XCODE_ATTRIBUTE_CURRENT_PROJECT_VERSION
+        XCODE_ATTRIBUTE_CURRENT_PROJECT_VERSION             ${CMAKE_PROJECT_VERSION}
         XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET          "14.0"
         XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY              "1,2"   # iPhone,iPad
     )
