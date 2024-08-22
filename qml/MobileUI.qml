@@ -390,38 +390,14 @@ ApplicationWindow {
             visible: (Qt.platform.os === "android" || Qt.platform.os === "ios")
             columns: (appWindow.screenOrientation == Qt.PortraitOrientation) ? 1 : 2
             rows: 2
-            spacing: 16
+            spacing: (appWindow.screenOrientation == Qt.PortraitOrientation) ? 32 : 0
 
             Column {
                 width: (appWindow.screenOrientation == Qt.PortraitOrientation)
                         ? appWindow.width : appWindow.width / 2
 
                 visible: (Qt.platform.os === "android" || Qt.platform.os === "ios")
-                spacing: 16
-
-                Button {
-                    id: deviceThemeButton
-                    anchors.horizontalCenter: parent.horizontalCenter
-
-                    text: "device theme (?)"
-                    onClicked: update()
-
-                    function update() {
-                        deviceThemeButton.text = "device theme (%1)".arg(mobileUI.deviceTheme ? "dark" : "light")
-                    }
-                }
-
-                Button {
-                    anchors.horizontalCenter: parent.horizontalCenter
-
-                    text: "keep screen on (disabled)"
-                    highlighted: mobileUI.screenAlwaysOn
-
-                    onClicked: {
-                        mobileUI.setScreenAlwaysOn(!mobileUI.screenAlwaysOn)
-                        text = "keep screen on (%1)".arg(mobileUI.screenAlwaysOn ? "enabled" : "disabled")
-                    }
-                }
+                spacing: 8
 
                 Row {
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -443,14 +419,6 @@ ApplicationWindow {
                         onClicked: mobileUI.setFullScreen()
                     }
                 }
-            }
-
-            ////
-
-            Column {
-                width: (appWindow.screenOrientation == Qt.PortraitOrientation)
-                        ? appWindow.width : appWindow.width / 2
-                spacing: 16
 
                 Row {
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -507,6 +475,48 @@ ApplicationWindow {
                     highlighted: appWindow.showSafeAreas
                     onClicked: appWindow.showSafeAreas = !appWindow.showSafeAreas
                 }
+            }
+
+            ////
+
+            Column {
+                width: (appWindow.screenOrientation == Qt.PortraitOrientation)
+                        ? appWindow.width : appWindow.width / 2
+                spacing: 8
+
+                Button {
+                    id: deviceThemeButton
+                    anchors.horizontalCenter: parent.horizontalCenter
+
+                    text: "device theme (?)"
+                    onClicked: update()
+
+                    function update() {
+                        deviceThemeButton.text = "device theme (%1)".arg(mobileUI.deviceTheme ? "dark" : "light")
+                    }
+                }
+
+                Row {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    spacing: 8
+
+                    Button {
+                        text: "lock screensaver (disabled)"
+                        highlighted: mobileUI.screenAlwaysOn
+
+                        onClicked: {
+                            mobileUI.setScreenAlwaysOn(!mobileUI.screenAlwaysOn)
+                            text = "lock screensaver (%1)".arg(mobileUI.screenAlwaysOn ? "enabled" : "disabled")
+                        }
+                    }
+                    Button {
+
+                        visible: !(Qt.platform.os === "ios" && mobileUI.isTablet)
+
+                        text: "vibrate"
+                        onClicked: mobileUI.vibrate()
+                    }
+                }
 
                 Row {
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -527,15 +537,6 @@ ApplicationWindow {
                             screenBrightnessButton.text = "brightness (" + mobileUI.screenBrightness + ")"
                         }
                     }
-                }
-
-                Button {
-                    anchors.horizontalCenter: parent.horizontalCenter
-
-                    visible: !(Qt.platform.os === "ios" && mobileUI.isTablet)
-
-                    text: "vibrate"
-                    onClicked: mobileUI.vibrate()
                 }
             }
         }
