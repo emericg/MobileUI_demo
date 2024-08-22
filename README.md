@@ -33,6 +33,6 @@ $ make
 
 ## License
 
-The MobileUI_demo project, as well as the MobileUI module are licensed under the [MIT license](LICENSE).
+The MobileUI_demo project, just like the MobileUI module, is licensed under the [MIT license](LICENSE).
 
 > Emeric Grange <emeric.grange@gmail.com>
