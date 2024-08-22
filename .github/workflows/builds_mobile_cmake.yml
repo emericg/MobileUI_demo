@@ -123,13 +123,12 @@ jobs:
       # Build application
       - name: Build application
         run: |
-             cmake --version
-             cmake -B build/ -G Xcode \
+             ${{env.QT_TARGET_PATH}}/bin/qt-cmake --version
+             ${{env.QT_TARGET_PATH}}/bin/qt-cmake -B build/ -G Xcode \
                -DCMAKE_SYSTEM_NAME=iOS \
                -DCMAKE_BUILD_TYPE=Release \
                -DCMAKE_FIND_ROOT_PATH:PATH=${{env.QT_TARGET_PATH}} \
                -DCMAKE_PREFIX_PATH:PATH=${{env.QT_TARGET_PATH}} \
-               -DCMAKE_TOOLCHAIN_FILE=assets/ios/ios.toolchain.cmake \
                -DQT_HOST_PATH:PATH=${{env.QT_HOST_PATH}} \
                -DENABLE_ARC=FALSE \
                -DPLATFORM=OS64

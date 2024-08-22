@@ -28,6 +28,19 @@ qt_standard_project_setup(REQUIRES 6.5)
 
 qt_add_executable(${CMAKE_PROJECT_NAME} src/main.cpp qml/qml.qrc)
 
+# MobileUI
+add_subdirectory(MobileUI/)
+target_link_libraries(MobileUI_demo PRIVATE MobileUI)
+
+# Qt
+target_link_libraries(MobileUI_demo PRIVATE
+    Qt::Core
+    Qt::Gui
+    Qt::Qml
+    Qt::Quick
+    Qt::QuickControls2
+)
+
 ################################################################################
 
 ## Android
@@ -65,21 +78,6 @@ if(IOS)
         XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY              "1,2"   # iPhone,iPad
     )
 endif()
-
-################################################################################
-
-# MobileUI
-add_subdirectory(MobileUI/)
-target_link_libraries(MobileUI_demo PRIVATE MobileUI)
-
-# Qt
-target_link_libraries(MobileUI_demo PRIVATE
-    Qt::Core
-    Qt::Gui
-    Qt::Qml
-    Qt::Quick
-    Qt::QuickControls2
-)
 
 ################################################################################
 
