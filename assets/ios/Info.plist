@@ -2,28 +2,30 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
+
 	<key>CFBundleName</key>
 	<string>MobileUI</string>
+
 	<key>CFBundleDisplayName</key>
 	<string>MobileUI</string>
+
 	<key>CFBundleExecutable</key>
 	<string>MobileUI</string>
+
 	<key>CFBundleIdentifier</key>
 	<string>io.emeric.mobileuidemo</string>
-	<key>CFBundleShortVersionString</key>
-	<string>0.1</string>
+
 	<key>CFBundleVersion</key>
-	<string>000101</string>
-	<key>LSRequiresIPhoneOS</key>
-	<true/>
-	<key>NSHighResolutionCapable</key>
-	<true/>
-	<key>ITSAppUsesNonExemptEncryption</key>
-	<false/>
-	<key>MinimumOSVersion</key>
-	<string>14.0</string>
+	<string>000201</string>
+
+	<key>CFBundleShortVersionString</key>
+	<string>0.2</string>
+
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
@@ -31,5 +33,20 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.utilities</string>
+
+	<key>LSRequiresIPhoneOS</key>
+	<true/>
+
+	<key>MinimumOSVersion</key>
+	<string>14.0</string>
+
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+
+	<key>NSHighResolutionCapable</key>
+	<true/>
 </dict>
 </plist>

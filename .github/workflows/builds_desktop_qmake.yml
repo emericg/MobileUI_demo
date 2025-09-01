@@ -14,8 +14,8 @@ on:
 
 env:
   APP_NAME: "MobileUI_demo"
-  APP_VERSION: "0.1"
-  QT_VERSION: "6.5.3"
+  APP_VERSION: "0.2"
+  QT_VERSION: "6.8.3"
 
 #-------------------------------------------------------------------------------
 # Workflow jobs
@@ -25,7 +25,7 @@ jobs:
   ## GNU/Linux build ###########################################################
   build-linux:
     name: "Linux CI build"
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
       # Checkout repository (and submodules)
       - name: Checkout repository (and submodules)

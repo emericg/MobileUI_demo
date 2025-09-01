@@ -14,8 +14,8 @@ on:
 
 env:
   APP_NAME: "MobileUI_demo"
-  APP_VERSION: "0.1"
-  QT_VERSION: "6.5.3"
+  APP_VERSION: "0.2"
+  QT_VERSION: "6.8.3"
 
 #-------------------------------------------------------------------------------
 # Workflow jobs
@@ -25,7 +25,7 @@ jobs:
   ## GNU/Linux build ###########################################################
   build-linux:
     name: "Linux CI build"
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
       # Checkout repository (and submodules)
       - name: Checkout repository (and submodules)
@@ -33,17 +33,18 @@ jobs:
         with:
           submodules: recursive
 
+      # Install dependencies (from package manager)
+      - name: Install dependencies (from package manager)
+        run: |
+             sudo apt-get install libgl1-mesa-dev libxkbcommon-x11-dev libx11-xcb-dev libzstd-dev -y;
+             sudo apt-get install cmake ninja-build pkgconf libtool -y;
+             sudo apt-get install libfuse2 appstream -y;
+
       # Install Qt
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
         with:
           version: ${{env.QT_VERSION}}
-
-      # Install dependencies (from package manager)
-      - name: Install dependencies (from package manager)
-        run: |
-             sudo apt-get install libgl1-mesa-dev libxkbcommon-x11-dev libx11-xcb-dev libzstd-dev -y;
-             sudo apt-get install cmake ninja-build -y;
 
       # Setup env
       - name: Setup env

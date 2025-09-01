@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" android:installLocation="auto"
-          android:versionName="0.1" android:versionCode="000101"
+          android:versionName="0.2" android:versionCode="000201"
           package="io.emeric.mobileuidemo">
 
     <supports-screens android:anyDensity="true" android:largeScreens="true" android:normalScreens="true" android:smallScreens="true" />
