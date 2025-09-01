@@ -4,7 +4,7 @@ import QtQuick.Window
 
 import MobileUI
 
-ApplicationWindow {
+Window {
     id: appWindow
 
     minimumWidth: 480
@@ -52,7 +52,31 @@ ApplicationWindow {
 
     Connections {
         target: Screen
-        function onOrientationChanged() { mobileUI.handleSafeAreas() }
+        function onOrientationChanged() {
+            mobileUI.handleSafeAreas()
+            rotateTimer1.start()
+            rotateTimer2.start()
+            rotateTimer3.start()
+        }
+    }
+
+    Timer {
+        id: rotateTimer1
+        interval: 40
+        running: false; repeat: false;
+        onTriggered: { mobileUI.handleSafeAreas() }
+    }
+    Timer {
+        id: rotateTimer2
+        interval: 128
+        running: false; repeat: false;
+        onTriggered: { mobileUI.handleSafeAreas() }
+    }
+    Timer {
+        id: rotateTimer3
+        interval: 256
+        running: false; repeat: false;
+        onTriggered: { mobileUI.handleSafeAreas() }
     }
 
     MobileUI {
@@ -71,6 +95,8 @@ ApplicationWindow {
             // safe areas are only taken into account when using maximized geometry / full screen mode
 
             mobileUI.refreshUI() // hack
+
+            mobileUI.statusbarTheme = MobileUI.Dark // hack
 
             if (appWindow.visibility === Window.FullScreen ||
                 appWindow.flags & Qt.MaximizeUsingFullscreenGeometryHint) {
