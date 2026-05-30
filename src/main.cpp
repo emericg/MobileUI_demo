@@ -1,8 +1,6 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 
-#include <MobileUI>
-
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
@@ -13,12 +11,11 @@ int main(int argc, char *argv[])
     app.setOrganizationName("emeric");
     app.setOrganizationDomain("emeric");
 
-    // Register MobileUI
-    MobileUI::registerQML();
-
     // Start the UI
     QQmlApplicationEngine engine;
-    engine.load(QUrl(QStringLiteral("qrc:/qml/MobileUI.qml")));
+
+    engine.loadFromModule("MobileUI_demo", "MobileApplication");
+
     if (engine.rootObjects().isEmpty())
     {
         qWarning() << "Cannot init QmlApplicationEngine!";

@@ -38,11 +38,13 @@ find_package(Qt6 REQUIRED COMPONENTS Core Gui Qml Quick QuickControls2)
 
 qt_standard_project_setup(REQUIRES 6.8)
 
-qt_add_executable(${PROJECT_NAME} src/main.cpp qml/qml.qrc)
+qt_add_executable(${PROJECT_NAME} src/main.cpp)
 
-# MobileUI
-add_subdirectory(MobileUI/)
-target_link_libraries(MobileUI_demo PRIVATE MobileUI)
+qt_add_qml_module(${PROJECT_NAME}
+    URI ${PROJECT_NAME}
+    NO_PLUGIN
+    QML_FILES qml/MobileApplication.qml
+)
 
 # Qt
 target_link_libraries(MobileUI_demo PRIVATE
@@ -52,6 +54,14 @@ target_link_libraries(MobileUI_demo PRIVATE
     Qt::Quick
     Qt::QuickControls2
 )
+
+# MobileUI
+add_subdirectory(MobileUI/)
+target_link_libraries(MobileUI_demo PRIVATE MobileUI)
+
+# Qt official hacks...
+set(QML_IMPORT_PATH "${CMAKE_BINARY_DIR}/MobileUI" CACHE STRING "QML Modules import paths" FORCE)
+set(QT_QML_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 ################################################################################
 
@@ -94,7 +104,7 @@ endif()
 
 # Output (build)
 set_target_properties(${PROJECT_NAME} PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin"
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_INSTALL_BINDIR}"
 )
 
 # Output (install)
