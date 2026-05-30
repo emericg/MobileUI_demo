@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(MobileUI_demo VERSION 0.1 LANGUAGES CXX)
+project(MobileUI_demo VERSION 0.3 LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
@@ -36,7 +36,7 @@ message(STATUS "[PROJECT] CMAKE_CURRENT_SOURCE_DIR  = ${CMAKE_CURRENT_SOURCE_DIR
 
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Qml Quick QuickControls2)
 
-qt_standard_project_setup(REQUIRES 6.5)
+qt_standard_project_setup(REQUIRES 6.8)
 
 qt_add_executable(${PROJECT_NAME} src/main.cpp qml/qml.qrc)
 
@@ -73,8 +73,8 @@ endif()
 if(IOS)
     set(CMAKE_OSX_ARCHITECTURES "arm64")
     set(CMAKE_OSX_SYSROOT "iphoneos")
-    set(CMAKE_OSX_DEPLOYMENT_TARGET "14.0")
-    set(CMAKE_XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET "14.0")
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "16.0")
+    set(CMAKE_XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET "16.0")
     set(CMAKE_XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2") # iPhone,iPad
     set(CMAKE_XCODE_ATTRIBUTE_INFOPLIST_FILE "${PROJECT_SOURCE_DIR}/assets/ios/Info.plist")
 
