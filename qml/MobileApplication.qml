@@ -43,67 +43,84 @@ Window {
 
     ////////////////////////////////////////////////////////////////////////////
 
-    MobileUI {
-        id: mobileUI
+    // MobileUI is a QML singleton, so it cannot (and should not) be instantiated.
+    // Access its properties directly as MobileUI.*, set the initial bar colors imperatively,
+    // and react to its signals through a Connections blocks or regular QML bindings.
 
-        statusbarColor: "grey"
-        statusbarTheme: MobileUI.Dark
+    Component.onCompleted: {
+        MobileUI.statusbarColor = "grey"
+        MobileUI.statusbarTheme = MobileUI.Dark
 
-        navbarColor: "grey"
-        navbarTheme: MobileUI.Dark
+        MobileUI.navbarColor = "grey"
+        MobileUI.navbarTheme = MobileUI.Dark
+    }
 
-        onSafeAreaUpdated: printSafeAreas()
+    Connections {
+        target: MobileUI
+        function onSafeAreaUpdated() { appWindow.printSafeAreas() }
+    }
 
-        function setRegular() {
-            if (Qt.platform.os === "android") { // hacks
-                if (appWindow.windowmode === 2) return
-            }
-            if (appWindow.windowmode !== 0) { // not re-setting same flags/visibility is important
-                appWindow.windowmode = 0
-                appWindow.flags &= ~Qt.MaximizeUsingFullscreenGeometryHint
-                appWindow.showMaximized()
-            }
+    function setRegular() {
+        if (Qt.platform.os === "android") { // hacks
+            if (appWindow.windowmode === 2) return
         }
-        function setMaximized() {
-            if (Qt.platform.os === "android") { // hacks
-                if (appWindow.windowmode !== 1)
-                    if (appWindow.windowmode === 0) appWindow.showFullScreen()
-            }
-            if (appWindow.windowmode !== 1) { // not re-setting same flags/visibility is important
-                appWindow.windowmode = 1
-                appWindow.flags |= Qt.MaximizeUsingFullscreenGeometryHint
-                appWindow.showMaximized()
-            }
-        }
-        function setFullScreen() {
-            if (Qt.platform.os === "android") { // hacks
-                if (appWindow.windowmode === 0) return
-            }
-            if (appWindow.windowmode !== 2) { // not re-setting same flags/visibility is important
-                appWindow.windowmode = 2
-                appWindow.flags |= Qt.MaximizeUsingFullscreenGeometryHint
-                appWindow.showFullScreen()
-            }
-        }
+        if (appWindow.windowmode !== 0) { // not re-setting same flags/visibility is important
+            appWindow.windowmode = 0
+            appWindow.flags &= ~Qt.MaximizeUsingFullscreenGeometryHint
+            appWindow.showMaximized()
 
-        function printSafeAreas() {
-            console.log("> printSafeAreas()")
-            console.log("- window mode:         " + appWindow.visibility)
-            console.log("- window flags:        " + appWindow.flags)
-            console.log("- screen dpi:          " + Screen.devicePixelRatio)
-            console.log("- screen width:        " + Screen.width)
-            console.log("- screen width avail:  " + Screen.desktopAvailableWidth)
-            console.log("- screen height:       " + Screen.height)
-            console.log("- screen height avail: " + Screen.desktopAvailableHeight)
-            console.log("- screen orientation (full):    " + Screen.orientation)
-            console.log("- screen orientation (primary): " + Screen.primaryOrientation)
-            console.log("- statusbarHeight: " + mobileUI.statusbarHeight)
-            console.log("- navbarHeight:    " + mobileUI.navbarHeight)
-            console.log("- safeAreaTop:     " + mobileUI.safeAreaTop)
-            console.log("- safeAreaLeft:    " + mobileUI.safeAreaLeft)
-            console.log("- safeAreaRight:   " + mobileUI.safeAreaRight)
-            console.log("- safeAreaBottom:  " + mobileUI.safeAreaBottom)
+            // a flag-only change (regular <-> maximized) emits no QWindow signal,
+            // so ask MobileUI to recompute the safe areas itself
+            MobileUI.refreshMobileUI()
         }
+    }
+    function setMaximized() {
+        if (Qt.platform.os === "android") { // hacks
+            if (appWindow.windowmode !== 1)
+                if (appWindow.windowmode === 0) appWindow.showFullScreen()
+        }
+        if (appWindow.windowmode !== 1) { // not re-setting same flags/visibility is important
+            appWindow.windowmode = 1
+            appWindow.flags |= Qt.MaximizeUsingFullscreenGeometryHint
+            appWindow.showMaximized()
+
+            // a flag-only change (regular <-> maximized) emits no QWindow signal,
+            // so ask MobileUI to recompute the safe areas itself
+            MobileUI.refreshMobileUI()
+        }
+    }
+    function setFullScreen() {
+        if (Qt.platform.os === "android") { // hacks
+            if (appWindow.windowmode === 0) return
+        }
+        if (appWindow.windowmode !== 2) { // not re-setting same flags/visibility is important
+            appWindow.windowmode = 2
+            appWindow.flags |= Qt.MaximizeUsingFullscreenGeometryHint
+            appWindow.showFullScreen()
+
+            // showFullScreen() does change visibility (so QWindow emits a signal),
+            // but refresh explicitly too for parity with the other modes
+            MobileUI.refreshMobileUI()
+        }
+    }
+
+    function printSafeAreas() {
+        console.log("> printSafeAreas()")
+        console.log("- window mode:         " + appWindow.visibility)
+        console.log("- window flags:        " + appWindow.flags)
+        console.log("- screen dpi:          " + Screen.devicePixelRatio)
+        console.log("- screen width:        " + Screen.width)
+        console.log("- screen width avail:  " + Screen.desktopAvailableWidth)
+        console.log("- screen height:       " + Screen.height)
+        console.log("- screen height avail: " + Screen.desktopAvailableHeight)
+        console.log("- screen orientation (full):    " + Screen.orientation)
+        console.log("- screen orientation (primary): " + Screen.primaryOrientation)
+        console.log("- statusbarHeight: " + MobileUI.statusbarHeight)
+        console.log("- navbarHeight:    " + MobileUI.navbarHeight)
+        console.log("- safeAreaTop:     " + MobileUI.safeAreaTop)
+        console.log("- safeAreaLeft:    " + MobileUI.safeAreaLeft)
+        console.log("- safeAreaRight:   " + MobileUI.safeAreaRight)
+        console.log("- safeAreaBottom:  " + MobileUI.safeAreaBottom)
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -123,12 +140,6 @@ Window {
                     break
                 case Qt.ApplicationActive:
                     //console.log("Qt.ApplicationActive")
-
-                    // you should probably not switch your app theme while it's being used,
-                    // only during an interaction like the app being brought back to the foreground,
-                    // so this is a good place to check if the device theme has changed while on the background
-                    deviceThemeButton.update()
-
                     break
             }
         }
@@ -137,7 +148,7 @@ Window {
     onClosing: (close) => {
         if (Qt.platform.os === "android") {
             close.accepted = false
-            mobileUI.backToHomeScreen()
+            MobileUI.backToHomeScreen()
         }
     }
 
@@ -156,7 +167,7 @@ Window {
             anchors.left: parent.left
             anchors.right: parent.right
 
-            height: mobileUI.safeAreaTop
+            height: MobileUI.safeAreaTop
             color: "red"
             opacity: 0.1
         }
@@ -167,7 +178,7 @@ Window {
             anchors.left: parent.left
             anchors.bottom: parent.bottom
 
-            width: mobileUI.safeAreaLeft
+            width: MobileUI.safeAreaLeft
             color: "red"
             opacity: 0.1
         }
@@ -178,7 +189,7 @@ Window {
             anchors.right: parent.right
             anchors.bottom: parent.bottom
 
-            width: mobileUI.safeAreaRight
+            width: MobileUI.safeAreaRight
             color: "red"
             opacity: 0.1
         }
@@ -189,7 +200,7 @@ Window {
             anchors.right: parent.right
             anchors.bottom: parent.bottom
 
-            height: mobileUI.safeAreaBottom
+            height: MobileUI.safeAreaBottom
             color: "red"
             opacity: 0.1
         }
@@ -209,7 +220,7 @@ Window {
             anchors.left: parent.left
             anchors.right: parent.right
 
-            height: mobileUI.statusbarHeight
+            height: MobileUI.statusbarHeight
             color: "blue"
             opacity: 0.1
         }
@@ -219,7 +230,7 @@ Window {
             anchors.right: parent.right
             anchors.bottom: parent.bottom
 
-            height: mobileUI.navbarHeight
+            height: MobileUI.navbarHeight
             color: "blue"
             opacity: 0.1
         }
@@ -231,7 +242,7 @@ Window {
             anchors.right: parent.right
 
             visible: (Qt.platform.os === "ios" || appWindow.windowmode === 1)
-            height: mobileUI.statusbarHeight
+            height: MobileUI.statusbarHeight
             color: "grey"
         }
     }
@@ -242,16 +253,16 @@ Window {
         id: appContent
 
         anchors.top: parent.top
-        anchors.topMargin: Math.max(mobileUI.safeAreaTop, mobileUI.statusbarHeight)
+        anchors.topMargin: Math.max(MobileUI.safeAreaTop, MobileUI.statusbarHeight)
         anchors.left: parent.left
-        anchors.leftMargin: mobileUI.safeAreaLeft
+        anchors.leftMargin: MobileUI.safeAreaLeft
         anchors.right: parent.right
-        anchors.rightMargin: mobileUI.safeAreaRight
+        anchors.rightMargin: MobileUI.safeAreaRight
         anchors.bottom: parent.bottom
-        anchors.bottomMargin: Math.max(mobileUI.safeAreaBottom, mobileUI.navbarHeight)
+        anchors.bottomMargin: Math.max(MobileUI.safeAreaBottom, MobileUI.navbarHeight)
 
         Keys.onBackPressed: {
-            mobileUI.backToHomeScreen()
+            MobileUI.backToHomeScreen()
         }
 
         ////////
@@ -269,7 +280,7 @@ Window {
                 if (appWindow.visibility === Window.FullScreen) return false
                 if (appWindow.visibility === Window.Maximized &&
                     appWindow.screenOrientation == Qt.LandscapeOrientation &&
-                    Qt.platform.os === "ios" && mobileUI.isPhone) return false
+                    Qt.platform.os === "ios" && MobileUI.isPhone) return false
 
                 return true
             }
@@ -284,7 +295,7 @@ Window {
             }
 
             onActivated: {
-                mobileUI.statusbarColor = currentText
+                MobileUI.statusbarColor = currentText
                 statusbarUnderlay.color = currentText
             }
         }
@@ -340,17 +351,17 @@ Window {
                     Button {
                         text: "regular"
                         highlighted: (appWindow.windowmode === 0)
-                        onClicked: mobileUI.setRegular()
+                        onClicked: appWindow.setRegular()
                     }
                     Button {
                         text: "maximized"
                         highlighted: (appWindow.windowmode === 1)
-                        onClicked: mobileUI.setMaximized()
+                        onClicked: appWindow.setMaximized()
                     }
                     Button {
                         text: "fullscreen"
                         highlighted: (appWindow.windowmode === 2)
-                        onClicked: mobileUI.setFullScreen()
+                        onClicked: appWindow.setFullScreen()
                     }
                 }
 
@@ -364,7 +375,7 @@ Window {
                         text: "←"
                         highlighted: (parent.forcedOrientation === MobileUI.Landscape_left)
                         onClicked: {
-                            mobileUI.setScreenOrientation(MobileUI.Landscape_left)
+                            MobileUI.setScreenOrientation(MobileUI.Landscape_left)
                             parent.forcedOrientation = MobileUI.Landscape_left
                         }
                     }
@@ -372,7 +383,7 @@ Window {
                         text: "↑"
                         highlighted: (parent.forcedOrientation === MobileUI.Portrait)
                         onClicked: {
-                            mobileUI.setScreenOrientation(MobileUI.Portrait)
+                            MobileUI.setScreenOrientation(MobileUI.Portrait)
                             parent.forcedOrientation = MobileUI.Portrait
                         }
                     }
@@ -380,7 +391,7 @@ Window {
                         text: "auto"
                         highlighted: (parent.forcedOrientation === MobileUI.Unlocked)
                         onClicked: {
-                            mobileUI.setScreenOrientation(MobileUI.Unlocked)
+                            MobileUI.setScreenOrientation(MobileUI.Unlocked)
                             parent.forcedOrientation = MobileUI.Unlocked
                         }
                     }
@@ -388,7 +399,7 @@ Window {
                         text: "↓"
                         highlighted: (parent.forcedOrientation === MobileUI.Portrait_upsidedown)
                         onClicked: {
-                            mobileUI.setScreenOrientation(MobileUI.Portrait_upsidedown)
+                            MobileUI.setScreenOrientation(MobileUI.Portrait_upsidedown)
                             parent.forcedOrientation = MobileUI.Portrait_upsidedown
                         }
                     }
@@ -396,7 +407,7 @@ Window {
                         text: "→"
                         highlighted: (parent.forcedOrientation === MobileUI.Landscape_right)
                         onClicked: {
-                            mobileUI.setScreenOrientation(MobileUI.Landscape_right)
+                            MobileUI.setScreenOrientation(MobileUI.Landscape_right)
                             parent.forcedOrientation = MobileUI.Landscape_right
                         }
                     }
@@ -422,12 +433,7 @@ Window {
                     id: deviceThemeButton
                     anchors.horizontalCenter: parent.horizontalCenter
 
-                    text: "device theme (?)"
-                    onClicked: update()
-
-                    function update() {
-                        deviceThemeButton.text = "device theme (%1)".arg(mobileUI.deviceTheme ? "dark" : "light")
-                    }
+                    text: "device theme (%1)".arg(MobileUI.deviceTheme ? "dark" : "light")
                 }
 
                 Row {
@@ -436,19 +442,19 @@ Window {
 
                     Button {
                         text: "lock screensaver (disabled)"
-                        highlighted: mobileUI.screenAlwaysOn
+                        highlighted: MobileUI.screenAlwaysOn
 
                         onClicked: {
-                            mobileUI.setScreenAlwaysOn(!mobileUI.screenAlwaysOn)
-                            text = "lock screensaver (%1)".arg(mobileUI.screenAlwaysOn ? "enabled" : "disabled")
+                            MobileUI.setScreenAlwaysOn(!MobileUI.screenAlwaysOn)
+                            text = "lock screensaver (%1)".arg(MobileUI.screenAlwaysOn ? "enabled" : "disabled")
                         }
                     }
                     Button {
 
-                        visible: !(Qt.platform.os === "ios" && mobileUI.isTablet)
+                        visible: !(Qt.platform.os === "ios" && MobileUI.isTablet)
 
                         text: "vibrate"
-                        onClicked: mobileUI.vibrate()
+                        onClicked: MobileUI.vibrate()
                     }
                 }
 
@@ -458,17 +464,17 @@ Window {
 
                     Button {
                         id: screenBrightnessButton
-                        text: "brightness (" + mobileUI.screenBrightness + ")"
-                        onClicked: text = "brightness (" + mobileUI.screenBrightness + ")"
+                        text: "brightness (" + MobileUI.screenBrightness + ")"
+                        onClicked: text = "brightness (" + MobileUI.screenBrightness + ")"
                     }
 
                     Slider {
                         from: 0
                         to: 100
-                        value: mobileUI.screenBrightness
+                        value: MobileUI.screenBrightness
                         onMoved: {
-                            mobileUI.screenBrightness = value
-                            screenBrightnessButton.text = "brightness (" + mobileUI.screenBrightness + ")"
+                            MobileUI.screenBrightness = value
+                            screenBrightnessButton.text = "brightness (" + MobileUI.screenBrightness + ")"
                         }
                     }
                 }
@@ -539,7 +545,7 @@ Window {
                 }
 
                 onActivated: {
-                    mobileUI.navbarColor = currentText
+                    MobileUI.navbarColor = currentText
                 }
             }
         }
