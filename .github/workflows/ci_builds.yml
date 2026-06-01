@@ -2,7 +2,7 @@
 # Workflow configuration
 #-------------------------------------------------------------------------------
 
-name: "Mobile CI builds (cmake)"
+name: "Desktop & Mobile CI builds"
 on:
   push:
   pull_request:
@@ -22,9 +22,124 @@ env:
 #-------------------------------------------------------------------------------
 
 jobs:
+  ## GNU/Linux build ###########################################################
+
+  build-linux-qmake:
+    name: "Linux 'dummy' CI build (QMake)"
+    runs-on: ubuntu-24.04
+    steps:
+      # Checkout repository (and submodules)
+      - name: Checkout repository (and submodules)
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      # Install Qt
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{env.QT_VERSION}}
+
+      # Install dependencies (from package manager)
+      - name: Install dependencies (from package manager)
+        run: |
+             sudo apt-get install libgl1-mesa-dev libxkbcommon-x11-dev libx11-xcb-dev libzstd-dev -y;
+
+      # Setup env
+      - name: Setup env
+        run: |
+             qmake --version
+
+      # Build application
+      - name: Build application
+        run: |
+             qmake ${{env.APP_NAME}}.pro CONFIG+=release PREFIX=/usr
+             make -j$(nproc)
+
+  build-linux-cmake:
+    name: "Linux 'dummy' CI build (CMake)"
+      runs-on: ubuntu-24.04
+      steps:
+        # Checkout repository (and submodules)
+        - name: Checkout repository (and submodules)
+          uses: actions/checkout@v4
+          with:
+            submodules: recursive
+
+        # Install dependencies (from package manager)
+        - name: Install dependencies (from package manager)
+          run: |
+               sudo apt-get install libgl1-mesa-dev libxkbcommon-x11-dev libx11-xcb-dev libzstd-dev -y;
+               sudo apt-get install cmake ninja-build pkgconf libtool -y;
+
+        # Install Qt
+        - name: Install Qt
+          uses: jurplel/install-qt-action@v4
+          with:
+            version: ${{env.QT_VERSION}}
+
+        # Setup env
+        - name: Setup env
+          run: |
+               cmake --version
+
+        # Build application
+        - name: Build application
+          run: |
+               cmake .
+               cmake --build .
+
   ## Android build #############################################################
-  build-android:
-    name: "Android CI build"
+
+  build-android-qmake:
+    name: "Android CI build (QMake)"
+    runs-on: ubuntu-24.04
+    steps:
+      # Checkout repository (and submodules)
+      - name: Checkout repository (and submodules)
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      # Java environment (already installed in 'ubuntu-24.04')
+      #- name: Setup Java environment
+      #  uses: actions/setup-java@v4
+      #  with:
+      #    distribution: 'temurin'
+      #    java-version: '17'
+
+      # Android environment (already installed in 'ubuntu-24.04')
+      #- name: Setup Android environment
+      #  uses: android-actions/setup-android@v3
+      #- name: Install Android SDK / NDK / tools
+      #  run: |
+      #       sdkmanager "platforms;android-36"
+      #       sdkmanager "ndk;26.1.10909125"
+      #       sdkmanager "build-tools;36.0.0"
+
+      # Install Qt (desktop & Android)
+      - name: Install Qt (desktop & Android)
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{env.QT_VERSION}}
+          host: 'linux'
+          target: 'android'
+          arch: 'android_arm64_v8a'
+          extra: '--autodesktop'
+
+      # Setup env
+      - name: Setup env
+        run: |
+             qmake --version
+
+      # Build application
+      - name: Build application
+        run: |
+             qmake ${{env.APP_NAME}}.pro CONFIG+=release
+             make -j$(nproc)
+
+  build-android-cmake:
+    name: "Android CI build (CMake)"
     runs-on: ubuntu-24.04
     steps:
       # Checkout repository (and submodules)
@@ -89,8 +204,39 @@ jobs:
              cmake --build build/ --config Release
 
   ## iOS build #################################################################
-  build-ios:
-    name: "iOS CI build"
+
+  build-ios-qmake:
+    name: "iOS CI build (QMake)"
+    runs-on: macos-15
+    steps:
+      # Checkout repository (and submodules)
+      - name: Checkout repository (and submodules)
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      # Install Qt (iOS & desktop)
+      - name: Install Qt (iOS & desktop)
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{env.QT_VERSION}}
+          host: 'mac'
+          target: 'ios'
+          extra: '--autodesktop'
+
+      # Setup env
+      - name: Setup env
+        run: |
+             qmake --version
+
+      # Build application
+      - name: Build application
+        run: |
+             qmake ${{env.APP_NAME}}.pro CONFIG+=release
+             make -j`sysctl -n hw.logicalcpu`
+
+  build-ios-cmake:
+    name: "iOS CI build (CMake)"
     runs-on: macos-15
     steps:
       # Checkout repository (and submodules)

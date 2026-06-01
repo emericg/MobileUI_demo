@@ -1,9 +1,6 @@
 # MobileUI_demo
 
-[![GitHub action](https://img.shields.io/github/actions/workflow/status/emericg/MobileUI_demo/builds_desktop_qmake.yml?style=flat-square)](https://github.com/emericg/MobileUI_demo/actions/workflows/builds_desktop_qmake.yml)
-[![GitHub action](https://img.shields.io/github/actions/workflow/status/emericg/MobileUI_demo/builds_desktop_cmake.yml?style=flat-square)](https://github.com/emericg/MobileUI_demo/actions/workflows/builds_desktop_cmake.yml)
-[![GitHub action](https://img.shields.io/github/actions/workflow/status/emericg/MobileUI_demo/builds_mobile_qmake.yml?style=flat-square)](https://github.com/emericg/MobileUI_demo/actions/workflows/builds_mobile_qmake.yml)
-[![GitHub action](https://img.shields.io/github/actions/workflow/status/emericg/MobileUI_demo/builds_mobile_cmake.yml?style=flat-square)](https://github.com/emericg/MobileUI_demo/actions/workflows/builds_mobile_cmake.yml)
+[![GitHub Action Workflow Status](https://img.shields.io/github/actions/workflow/status/emericg/MobileUI_demo/ci_builds.yml?branch=v0&style=flat-square)](https://github.com/emericg/MobileUI_demo/actions/workflows/)
 
 A Qt6 / QML demo application for the [MobileUI](https://github.com/emericg/MobileUI/tree/v0) module.  
 
