@@ -41,41 +41,7 @@ Window {
 
     property bool showSafeAreas: true
 
-    property int screenPaddingStatusbar: 0
-    property int screenPaddingNavbar: 0
-
-    property int screenPaddingTop: 0
-    property int screenPaddingLeft: 0
-    property int screenPaddingRight: 0
-    property int screenPaddingBottom: 0
-
     ////////////////////////////////////////////////////////////////////////////
-
-    Connections {
-        target: Screen
-        function onOrientationChanged() {
-            mobileUI.handleSafeAreas_withDelays()
-        }
-    }
-
-    Timer {
-        id: rotateTimer1
-        interval: 40
-        running: false; repeat: false;
-        onTriggered: { mobileUI.handleSafeAreas() }
-    }
-    Timer {
-        id: rotateTimer2
-        interval: 128
-        running: false; repeat: false;
-        onTriggered: { mobileUI.handleSafeAreas() }
-    }
-    Timer {
-        id: rotateTimer3
-        interval: 256
-        running: false; repeat: false;
-        onTriggered: { mobileUI.handleSafeAreas() }
-    }
 
     MobileUI {
         id: mobileUI
@@ -86,89 +52,7 @@ Window {
         navbarColor: "grey"
         navbarTheme: MobileUI.Dark
 
-        Component.onCompleted: {
-            mobileUI.handleSafeAreas_withDelays()
-        }
-
-        function handleSafeAreas_withDelays() {
-            handleSafeAreas()
-            rotateTimer1.start()
-            rotateTimer2.start()
-            rotateTimer3.start()
-            rotateTimer4.start()
-        }
-
-        function handleSafeAreas() {
-            // safe areas handling is a work in progress /!\
-            // safe areas are only taken into account when using maximized geometry / full screen mode
-
-            mobileUI.refreshUI() // hack
-
-            mobileUI.statusbarTheme = MobileUI.Dark // hack
-
-            if (appWindow.visibility === Window.FullScreen ||
-                appWindow.flags & Qt.MaximizeUsingFullscreenGeometryHint) {
-
-                screenPaddingStatusbar = mobileUI.statusbarHeight
-                screenPaddingNavbar = mobileUI.navbarHeight
-
-                screenPaddingTop = mobileUI.safeAreaTop
-                screenPaddingLeft = mobileUI.safeAreaLeft
-                screenPaddingRight = mobileUI.safeAreaRight
-                screenPaddingBottom = mobileUI.safeAreaBottom
-
-                // hacks
-                if (Qt.platform.os === "android") {
-                    if (appWindow.visibility === Window.FullScreen) {
-                        screenPaddingStatusbar = 0
-                        screenPaddingNavbar = 0
-                    }
-                    if (appWindow.flags & Qt.MaximizeUsingFullscreenGeometryHint) {
-                        if (mobileUI.isPhone) {
-                            if (Screen.orientation === Qt.LandscapeOrientation) {
-                                screenPaddingLeft = screenPaddingStatusbar
-                                screenPaddingRight = screenPaddingNavbar
-                                screenPaddingNavbar = 0
-                            } else if (Screen.orientation === Qt.InvertedLandscapeOrientation) {
-                                screenPaddingLeft = screenPaddingNavbar
-                                screenPaddingRight = screenPaddingStatusbar
-                                screenPaddingNavbar = 0
-                            }
-                        }
-                    }
-                }
-                // hacks
-                if (Qt.platform.os === "ios") {
-                    if (appWindow.visibility === Window.FullScreen) {
-                        screenPaddingStatusbar = 0
-                    }
-                }
-            } else {
-                screenPaddingStatusbar = 0
-                screenPaddingNavbar = 0
-                screenPaddingTop = 0
-                screenPaddingLeft = 0
-                screenPaddingRight = 0
-                screenPaddingBottom = 0
-            }
-
-            console.log("> handleSafeAreas()")
-            console.log("- window mode:         " + appWindow.visibility)
-            console.log("- window flags:        " + appWindow.flags)
-            console.log("- screen dpi:          " + Screen.devicePixelRatio)
-            console.log("- screen width:        " + Screen.width)
-            console.log("- screen width avail:  " + Screen.desktopAvailableWidth)
-            console.log("- screen height:       " + Screen.height)
-            console.log("- screen height avail: " + Screen.desktopAvailableHeight)
-            console.log("- screen orientation (full): " + Screen.orientation)
-            console.log("- screen orientation (primary): " + Screen.primaryOrientation)
-            console.log("- screenSizeStatusbar: " + screenPaddingStatusbar)
-            console.log("- screenSizeNavbar:    " + screenPaddingNavbar)
-            console.log("- screenPaddingTop:    " + screenPaddingTop)
-            console.log("- screenPaddingLeft:   " + screenPaddingLeft)
-            console.log("- screenPaddingRight:  " + screenPaddingRight)
-            console.log("- screenPaddingBottom: " + screenPaddingBottom)
-        }
+        onSafeAreaUpdated: printSafeAreas()
 
         function setRegular() {
             if (Qt.platform.os === "android") { // hacks
@@ -178,7 +62,6 @@ Window {
                 appWindow.windowmode = 0
                 appWindow.flags &= ~Qt.MaximizeUsingFullscreenGeometryHint
                 appWindow.showMaximized()
-                handleSafeAreas()
             }
         }
         function setMaximized() {
@@ -190,7 +73,6 @@ Window {
                 appWindow.windowmode = 1
                 appWindow.flags |= Qt.MaximizeUsingFullscreenGeometryHint
                 appWindow.showMaximized()
-                handleSafeAreas()
             }
         }
         function setFullScreen() {
@@ -201,8 +83,26 @@ Window {
                 appWindow.windowmode = 2
                 appWindow.flags |= Qt.MaximizeUsingFullscreenGeometryHint
                 appWindow.showFullScreen()
-                handleSafeAreas()
             }
+        }
+
+        function printSafeAreas() {
+            console.log("> printSafeAreas()")
+            console.log("- window mode:         " + appWindow.visibility)
+            console.log("- window flags:        " + appWindow.flags)
+            console.log("- screen dpi:          " + Screen.devicePixelRatio)
+            console.log("- screen width:        " + Screen.width)
+            console.log("- screen width avail:  " + Screen.desktopAvailableWidth)
+            console.log("- screen height:       " + Screen.height)
+            console.log("- screen height avail: " + Screen.desktopAvailableHeight)
+            console.log("- screen orientation (full):    " + Screen.orientation)
+            console.log("- screen orientation (primary): " + Screen.primaryOrientation)
+            console.log("- statusbarHeight: " + mobileUI.statusbarHeight)
+            console.log("- navbarHeight:    " + mobileUI.navbarHeight)
+            console.log("- safeAreaTop:     " + mobileUI.safeAreaTop)
+            console.log("- safeAreaLeft:    " + mobileUI.safeAreaLeft)
+            console.log("- safeAreaRight:   " + mobileUI.safeAreaRight)
+            console.log("- safeAreaBottom:  " + mobileUI.safeAreaBottom)
         }
     }
 
@@ -256,7 +156,7 @@ Window {
             anchors.left: parent.left
             anchors.right: parent.right
 
-            height: appWindow.screenPaddingTop
+            height: mobileUI.safeAreaTop
             color: "red"
             opacity: 0.1
         }
@@ -267,7 +167,7 @@ Window {
             anchors.left: parent.left
             anchors.bottom: parent.bottom
 
-            width: appWindow.screenPaddingLeft
+            width: mobileUI.safeAreaLeft
             color: "red"
             opacity: 0.1
         }
@@ -278,7 +178,7 @@ Window {
             anchors.right: parent.right
             anchors.bottom: parent.bottom
 
-            width: appWindow.screenPaddingRight
+            width: mobileUI.safeAreaRight
             color: "red"
             opacity: 0.1
         }
@@ -289,7 +189,7 @@ Window {
             anchors.right: parent.right
             anchors.bottom: parent.bottom
 
-            height: appWindow.screenPaddingBottom
+            height: mobileUI.safeAreaBottom
             color: "red"
             opacity: 0.1
         }
@@ -303,23 +203,23 @@ Window {
 
         visible: appWindow.showSafeAreas
 
-        Rectangle { // alwayse on top
+        Rectangle { // alwayse on top, otherwise part of the safeAreas
             id: statusbarVis
             anchors.top: parent.top
             anchors.left: parent.left
             anchors.right: parent.right
 
-            height: appWindow.screenPaddingStatusbar
+            height: mobileUI.statusbarHeight
             color: "blue"
             opacity: 0.1
         }
-        Rectangle {
+        Rectangle { // always on bottom, otherwise part of the safeAreas
             id: navbarVis
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.bottom: parent.bottom
 
-            height: appWindow.screenPaddingNavbar
+            height: mobileUI.navbarHeight
             color: "blue"
             opacity: 0.1
         }
@@ -331,7 +231,7 @@ Window {
             anchors.right: parent.right
 
             visible: (Qt.platform.os === "ios" || appWindow.windowmode === 1)
-            height: appWindow.screenPaddingStatusbar
+            height: mobileUI.statusbarHeight
             color: "grey"
         }
     }
@@ -342,13 +242,13 @@ Window {
         id: appContent
 
         anchors.top: parent.top
-        anchors.topMargin: Math.max(appWindow.screenPaddingTop, appWindow.screenPaddingStatusbar)
+        anchors.topMargin: Math.max(mobileUI.safeAreaTop, mobileUI.statusbarHeight)
         anchors.left: parent.left
-        anchors.leftMargin: appWindow.screenPaddingLeft
+        anchors.leftMargin: mobileUI.safeAreaLeft
         anchors.right: parent.right
-        anchors.rightMargin: appWindow.screenPaddingRight
+        anchors.rightMargin: mobileUI.safeAreaRight
         anchors.bottom: parent.bottom
-        anchors.bottomMargin: Math.max(appWindow.screenPaddingBottom, appWindow.screenPaddingNavbar)
+        anchors.bottomMargin: Math.max(mobileUI.safeAreaBottom, mobileUI.navbarHeight)
 
         Keys.onBackPressed: {
             mobileUI.backToHomeScreen()
