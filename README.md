@@ -1,6 +1,6 @@
 # MobileUI_demo
 
-[![GitHub Action Workflow Status](https://img.shields.io/github/actions/workflow/status/emericg/MobileUI_demo/ci_builds.yml?branch=v0&style=flat-square)](https://github.com/emericg/MobileUI_demo/actions/workflows/)
+[![GitHub Action Workflow Status](https://img.shields.io/github/actions/workflow/status/emericg/MobileUI_demo/ci_builds.yml?branch=v0&style=flat-square)](https://github.com/emericg/MobileUI_demo/actions/)
 
 A Qt6 / QML demo application for the [MobileUI](https://github.com/emericg/MobileUI/tree/v0) module.  
 
