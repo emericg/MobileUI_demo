@@ -47,7 +47,7 @@ qt_add_qml_module(${PROJECT_NAME}
 )
 
 # Qt
-target_link_libraries(MobileUI_demo PRIVATE
+target_link_libraries(${PROJECT_NAME} PRIVATE
     Qt::Core
     Qt::Gui
     Qt::Qml
@@ -57,7 +57,7 @@ target_link_libraries(MobileUI_demo PRIVATE
 
 # MobileUI
 add_subdirectory(MobileUI/)
-target_link_libraries(MobileUI_demo PRIVATE MobileUI)
+target_link_libraries(${PROJECT_NAME} PRIVATE MobileUI)
 
 # Qt official hacks...
 set(QML_IMPORT_PATH "${CMAKE_BINARY_DIR}/MobileUI" CACHE STRING "QML Modules import paths" FORCE)
@@ -70,7 +70,7 @@ if(ANDROID)
     set_target_properties(${PROJECT_NAME} PROPERTIES
         #QT_ANDROID_ABIS "armeabi-v7a;arm64-v8a;x86;x86_64"
         #QT_ANDROID_BUILD_ALL_ABIS ON
-        QT_ANDROID_MIN_SDK_VERSION 23
+        QT_ANDROID_MIN_SDK_VERSION 28
         QT_ANDROID_TARGET_SDK_VERSION 36
         QT_ANDROID_PACKAGE_SOURCE_DIR "${PROJECT_SOURCE_DIR}/assets/android/"
     )

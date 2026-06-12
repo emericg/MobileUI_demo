@@ -1,11 +1,16 @@
 # MobileUI_demo
 
-[![GitHub Action Workflow Status](https://img.shields.io/github/actions/workflow/status/emericg/MobileUI_demo/builds_desktop_cmake.yml?style=flat-square)](https://github.com/emericg/MobileUI_demo/actions/workflows/builds_desktop_cmake.yml)
-[![GitHub Action Workflow Status](https://img.shields.io/github/actions/workflow/status/emericg/MobileUI_demo/builds_mobile_cmake.yml?style=flat-square)](https://github.com/emericg/MobileUI_demo/actions/workflows/builds_mobile_cmake.yml)
+[![GitHub Action Workflow Status](https://img.shields.io/github/actions/workflow/status/emericg/MobileUI_demo/ci_builds.yml?branch=v1&style=flat-square)](https://github.com/emericg/MobileUI_demo/actions/)
 
 A Qt6 / QML demo application for the [MobileUI](https://github.com/emericg/MobileUI) module.  
 
 You can report bugs or request features directly on the [MobileUI issue page](https://github.com/emericg/MobileUI/issues).  
+
+> [!IMPORTANT]
+> This is the **LEGACY** 'v1' branch, with modern architecture and requirements (Qt 6.8+ and CMake) but **without the QML singleton** for MobileUI. It might help you easing the transition of MobileUI into your application.
+
+> [!IMPORTANT]
+> The **LEGACY** 'v0' branch is also available with support for Qt6 and Qt5, as well as support for QMake and CMake build systems.
 
 ## Screenshots
 

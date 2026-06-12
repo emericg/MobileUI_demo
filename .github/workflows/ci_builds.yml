@@ -2,7 +2,7 @@
 # Workflow configuration
 #-------------------------------------------------------------------------------
 
-name: "Mobile CI builds"
+name: "Desktop & Mobile CI builds"
 on:
   push:
   pull_request:
@@ -22,6 +22,43 @@ env:
 #-------------------------------------------------------------------------------
 
 jobs:
+  ## GNU/Linux build ###########################################################
+  build-linux:
+    name: "Linux 'dummy' CI build"
+    runs-on: ubuntu-24.04
+    steps:
+      # Checkout repository (and submodules)
+      - name: Checkout repository (and submodules)
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      # Install dependencies (from package manager)
+      - name: Install dependencies (from package manager)
+        run: |
+             sudo apt-get install libgl1-mesa-dev libxkbcommon-x11-dev libx11-xcb-dev libzstd-dev -y;
+             sudo apt-get install cmake ninja-build pkgconf libtool -y;
+
+      # Install Qt
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ env.QT_VERSION }}
+
+      # Setup env
+      - name: Setup env
+        run: |
+             echo "CMAKE_BUILD_PARALLEL_LEVEL=$(nproc)" >> $GITHUB_ENV
+             qmake --version
+             cmake --version
+             ninja --version
+
+      # Build application
+      - name: Build application
+        run: |
+             cmake -B build/ -G Ninja -DCMAKE_BUILD_TYPE=Release
+             cmake --build build/ --config Release
+
   ## Android build #############################################################
   build-android:
     name: "Android CI build"
