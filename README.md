@@ -2,7 +2,7 @@
 
 [![GitHub Action Workflow Status](https://img.shields.io/github/actions/workflow/status/emericg/MobileUI_demo/ci_builds.yml?branch=v1&style=flat-square)](https://github.com/emericg/MobileUI_demo/actions/)
 
-A Qt6 / QML demo application for the [MobileUI](https://github.com/emericg/MobileUI) module.  
+A Qt6 / QML demo application for the [MobileUI](https://github.com/emericg/MobileUI/tree/v1) module.  
 
 You can report bugs or request features directly on the [MobileUI issue page](https://github.com/emericg/MobileUI/issues).  
 
