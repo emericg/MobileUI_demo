@@ -47,7 +47,7 @@ qt_add_qml_module(${PROJECT_NAME}
 )
 
 # Qt
-target_link_libraries(MobileUI_demo PRIVATE
+target_link_libraries(${PROJECT_NAME} PRIVATE
     Qt::Core
     Qt::Gui
     Qt::Qml
@@ -57,7 +57,7 @@ target_link_libraries(MobileUI_demo PRIVATE
 
 # MobileUI
 add_subdirectory(MobileUI/)
-target_link_libraries(MobileUI_demo PRIVATE MobileUI)
+target_link_libraries(${PROJECT_NAME} PRIVATE MobileUI MobileUI_plugin)
 
 # Qt official hacks...
 set(QML_IMPORT_PATH "${CMAKE_BINARY_DIR}/MobileUI" CACHE STRING "QML Modules import paths" FORCE)

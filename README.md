@@ -6,6 +6,12 @@ A Qt6 / QML demo application for the [MobileUI](https://github.com/emericg/Mobil
 
 You can report bugs or request features directly on the [MobileUI issue page](https://github.com/emericg/MobileUI/issues).  
 
+> [!NOTE]
+> The **LEGACY** 'v1' branch is available with modern architecture and requirements (Qt 6.8+ and CMake) but without the QML singleton for MobileUI. It could help you migrate your application from an older MobileUI version.
+
+> [!NOTE]
+> The **LEGACY** 'v0' branch is available with support for Qt6 and Qt5, as well as support for QMake and CMake build systems.
+
 ## Screenshots
 
 ![MobileUIs](https://raw.githubusercontent.com/emericg/screenshots_flathub/master/MobileUI/MobileUI.png)
