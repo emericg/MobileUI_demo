@@ -4,5 +4,4 @@ CMakeLists.txt.user
 Makefile
 build/
 bin/
-.qmake.stash
 .DS_Store

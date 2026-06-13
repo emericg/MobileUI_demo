@@ -13,7 +13,6 @@ int main(int argc, char *argv[])
 
     // Start the UI
     QQmlApplicationEngine engine;
-
     engine.loadFromModule("MobileUI_demo", "MobileApplication");
 
     if (engine.rootObjects().isEmpty())
