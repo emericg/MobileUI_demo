@@ -21,10 +21,10 @@
 	<string>io.emeric.mobileuidemo</string>
 
 	<key>CFBundleVersion</key>
-	<string>000201</string>
+	<string>000301</string>
 
 	<key>CFBundleShortVersionString</key>
-	<string>0.2</string>
+	<string>0.3</string>
 
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
@@ -41,7 +41,7 @@
 	<true/>
 
 	<key>MinimumOSVersion</key>
-	<string>14.0</string>
+	<string>16.0</string>
 
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
