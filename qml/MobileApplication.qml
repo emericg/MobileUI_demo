@@ -48,10 +48,10 @@ Window {
     // and react to its signals through a Connections blocks or regular QML bindings.
 
     Component.onCompleted: {
-        MobileUI.statusbarColor = "grey"
+        MobileUI.statusbarColor = "transparent"
         MobileUI.statusbarTheme = MobileUI.Dark
 
-        MobileUI.navbarColor = "grey"
+        MobileUI.navbarColor = "transparent"
         MobileUI.navbarTheme = MobileUI.Dark
     }
 
@@ -235,7 +235,7 @@ Window {
             opacity: 0.1
         }
 
-        Rectangle {
+        Rectangle { // with Android API 35+, the actual status bar can't be colored anymore, this is an underlay backup
             id: statusbarUnderlay
             anchors.top: parent.top
             anchors.left: parent.left
@@ -243,7 +243,7 @@ Window {
 
             visible: (Qt.platform.os === "ios" || appWindow.windowmode === 1)
             height: MobileUI.statusbarHeight
-            color: "grey"
+            color: "transparent"
         }
     }
 
@@ -287,11 +287,11 @@ Window {
 
             model: ListModel {
                 id: cbStatusbarColor
+                ListElement { text: "transparent"; }
                 ListElement { text: "grey"; }
                 ListElement { text: "white"; }
                 ListElement { text: "red"; }
                 ListElement { text: "blue"; }
-                ListElement { text: "transparent"; }
             }
 
             onActivated: {
@@ -537,11 +537,11 @@ Window {
 
                 model: ListModel {
                     id: cbNavbarColor
+                    ListElement { text: "transparent"; }
                     ListElement { text: "grey"; }
                     ListElement { text: "white"; }
                     ListElement { text: "red"; }
                     ListElement { text: "blue"; }
-                    ListElement { text: "transparent"; }
                 }
 
                 onActivated: {

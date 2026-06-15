@@ -5,8 +5,7 @@ buildscript {
     }
 
     dependencies {
-        //classpath 'com.android.tools.build:gradle:8.5.1' // works with Qt 6.8+ // Java 17
-        classpath 'com.android.tools.build:gradle:8.1.4' // works with Qt 6.5+ // Java 17
+        classpath 'com.android.tools.build:gradle:8.6.1' // works with Qt 6.8+ // Java 17
     }
 }
 
@@ -35,6 +34,7 @@ android {
      * Changing them manually might break the compilation!
      *******************************************************/
 
+    namespace = androidPackageName
     compileSdkVersion androidCompileSdkVersion
     buildToolsVersion androidBuildToolsVersion
     ndkVersion androidNdkVersion
@@ -49,11 +49,12 @@ android {
             renderscript.srcDirs = ['src']
             assets.srcDirs = ['assets']
             jniLibs.srcDirs = ['libs']
-       }
+        }
     }
 
     tasks.withType(JavaCompile) {
         options.incremental = true
+        options.compilerArgs += ['-Xlint:all']
     }
 
     compileOptions {
@@ -63,7 +64,7 @@ android {
 
     packagingOptions {
         jniLibs {
-            useLegacyPackaging true
+            useLegacyPackaging true // keep this for Qt 6.8 support
         }
     }
 
@@ -78,8 +79,8 @@ android {
 
     defaultConfig {
         resConfig "en"
-        minSdkVersion qtMinSdkVersion
-        targetSdkVersion qtTargetSdkVersion
+        minSdkVersion = qtMinSdkVersion
+        targetSdkVersion = qtTargetSdkVersion
         ndk.abiFilters = qtTargetAbiList.split(",")
 
         namespace "io.emeric.mobileuidemo"
