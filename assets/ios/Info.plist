@@ -15,7 +15,7 @@
 	<string>MobileUI</string>
 
 	<key>CFBundleExecutable</key>
-	<string>MobileUI</string>
+	<string>MobileUI_demo</string>
 
 	<key>CFBundleIdentifier</key>
 	<string>io.emeric.mobileuidemo</string>
