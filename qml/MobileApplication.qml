@@ -41,6 +41,8 @@ Window {
 
     property bool showSafeAreas: true
 
+    property bool showHapticFeedbacks: false
+
     ////////////////////////////////////////////////////////////////////////////
 
     // MobileUI is a QML singleton, so it cannot (and should not) be instantiated.
@@ -333,9 +335,10 @@ Window {
             anchors.centerIn: parent
 
             visible: (Qt.platform.os === "android" || Qt.platform.os === "ios")
+            spacing: (appWindow.screenOrientation == Qt.PortraitOrientation) ? 32 : 0
+
             columns: (appWindow.screenOrientation == Qt.PortraitOrientation) ? 1 : 2
             rows: 2
-            spacing: (appWindow.screenOrientation == Qt.PortraitOrientation) ? 32 : 0
 
             ////////
 
@@ -343,7 +346,6 @@ Window {
                 width: (appWindow.screenOrientation == Qt.PortraitOrientation)
                         ? appWindow.width : appWindow.width / 2
 
-                visible: (Qt.platform.os === "android" || Qt.platform.os === "ios")
                 spacing: 8
 
                 ////
@@ -455,19 +457,16 @@ Window {
                     spacing: 8
 
                     Button {
-                        text: "lock screensaver (disabled)"
+                        text: "screensaver (%1)".arg(MobileUI.screenAlwaysOn ? "disabled" : "enabled")
                         highlighted: MobileUI.screenAlwaysOn
 
-                        onClicked: {
-                            MobileUI.setScreenAlwaysOn(!MobileUI.screenAlwaysOn)
-                            text = "lock screensaver (%1)".arg(MobileUI.screenAlwaysOn ? "enabled" : "disabled")
-                        }
+                        onClicked: MobileUI.setScreenAlwaysOn(!MobileUI.screenAlwaysOn)
                     }
-                    Button {
-                        visible: !(Qt.platform.os === "ios" && MobileUI.isTablet)
 
-                        text: "haptic feedback"
-                        onClicked: MobileUI.hapticFeedback()
+                    Button {
+                        text: "secure (%1)".arg(MobileUI.screenSecure ? "on" : "off")
+                        highlighted: MobileUI.screenSecure
+                        onClicked: MobileUI.screenSecure = !MobileUI.screenSecure
                     }
                 }
 
@@ -491,6 +490,61 @@ Window {
                     }
                 }
 
+                ////
+
+                Row {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    spacing: 8
+
+                    visible: !(Qt.platform.os === "ios" && MobileUI.isTablet)
+
+                    Button {
+                        text: "haptic feedback"
+                        onClicked: MobileUI.hapticFeedback()
+                    }
+                    Button {
+                        text: appWindow.showHapticFeedbacks ? "-" : "+"
+                        onClicked: appWindow.showHapticFeedbacks = !appWindow.showHapticFeedbacks
+                    }
+                }
+                Flow { // more haptic feedbacks...
+                    width: parent.width
+                    spacing: 4
+
+                    visible: appWindow.showHapticFeedbacks && !(Qt.platform.os === "ios" && MobileUI.isTablet)
+
+                    Button { text: "select"; onClicked: MobileUI.vibrate(MobileUI.HapticSelection) }
+                    Button { text: "light";  onClicked: MobileUI.vibrate(MobileUI.HapticLight) }
+                    Button { text: "medium"; onClicked: MobileUI.vibrate(MobileUI.HapticMedium) }
+                    Button { text: "heavy";  onClicked: MobileUI.vibrate(MobileUI.HapticHeavy) }
+                    Button { text: "success"; onClicked: MobileUI.vibrate(MobileUI.HapticSuccess) }
+                    Button { text: "warning"; onClicked: MobileUI.vibrate(MobileUI.HapticWarning) }
+                    Button { text: "error";  onClicked: MobileUI.vibrate(MobileUI.HapticError) }
+                }
+
+                ////
+/*
+                Row {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    spacing: 8
+
+                    Button {
+                        text: "torch (%1)".arg(MobileUI.torchEnabled ? "on" : "off")
+                        highlighted: MobileUI.torchEnabled
+                        onClicked: MobileUI.setTorchEnabled(!MobileUI.torchEnabled)
+                    }
+
+                    Button {
+                        // updates automatically: keyboardHeight has a NOTIFY signal
+                        text: "keyboard (%1)".arg(MobileUI.keyboardHeight)
+                    }
+
+                    TextField {
+                        width: 96
+                        placeholderText: "tap to type"
+                    }
+                }
+*/
                 ////
 
                 Row {
