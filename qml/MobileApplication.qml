@@ -315,8 +315,8 @@ Window {
                 width: appContent.width * 0.75
 
                 text: "MobileUI doesn't do much when used on a desktop OS.<br>" +
-                      "Every functions and variables are available and can be used without" +
-                      "conditional checks, but without any functionnality behind them."
+                      "Every function and variables are available and can be used without " +
+                      "conditional checks, but without any functionality behind them."
 
                 wrapMode: Text.WordWrap
 
