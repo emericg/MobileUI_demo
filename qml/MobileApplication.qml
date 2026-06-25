@@ -206,7 +206,7 @@ Window {
         }
     }
 
-    ////////
+    ////////////////
 
     Item {
         id: systemBars
@@ -265,7 +265,7 @@ Window {
             MobileUI.backToHomeScreen()
         }
 
-        ////////
+        ////////////////
 
         ComboBox { // this combobox handle the status bar color+theme
             anchors.top: parent.top
@@ -300,7 +300,7 @@ Window {
             }
         }
 
-        ////////
+        ////////////////
 
         Column {
             anchors.centerIn: parent
@@ -327,7 +327,7 @@ Window {
             }
         }
 
-        ////////
+        ////////////////
 
         Grid {
             anchors.centerIn: parent
@@ -337,12 +337,16 @@ Window {
             rows: 2
             spacing: (appWindow.screenOrientation == Qt.PortraitOrientation) ? 32 : 0
 
+            ////////
+
             Column {
                 width: (appWindow.screenOrientation == Qt.PortraitOrientation)
                         ? appWindow.width : appWindow.width / 2
 
                 visible: (Qt.platform.os === "android" || Qt.platform.os === "ios")
                 spacing: 8
+
+                ////
 
                 Row {
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -365,53 +369,57 @@ Window {
                     }
                 }
 
+                ////
+
                 Row {
                     anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 8
 
-                    property int forcedOrientation: MobileUI.Unlocked
+                    property int lockedOrientation: MobileUI.Unlocked
 
                     Button {
                         text: "←"
-                        highlighted: (parent.forcedOrientation === MobileUI.Landscape_left)
+                        highlighted: (parent.lockedOrientation === MobileUI.Landscape_left)
                         onClicked: {
-                            MobileUI.setScreenOrientation(MobileUI.Landscape_left)
-                            parent.forcedOrientation = MobileUI.Landscape_left
+                            MobileUI.screenLockOrientation = MobileUI.Landscape_left
+                            parent.lockedOrientation = MobileUI.Landscape_left
                         }
                     }
                     Button {
                         text: "↑"
-                        highlighted: (parent.forcedOrientation === MobileUI.Portrait)
+                        highlighted: (parent.lockedOrientation === MobileUI.Portrait)
                         onClicked: {
-                            MobileUI.setScreenOrientation(MobileUI.Portrait)
-                            parent.forcedOrientation = MobileUI.Portrait
+                            MobileUI.screenLockOrientation = MobileUI.Portrait
+                            parent.lockedOrientation = MobileUI.Portrait
                         }
                     }
                     Button {
                         text: "auto"
-                        highlighted: (parent.forcedOrientation === MobileUI.Unlocked)
+                        highlighted: (parent.lockedOrientation === MobileUI.Unlocked)
                         onClicked: {
-                            MobileUI.setScreenOrientation(MobileUI.Unlocked)
-                            parent.forcedOrientation = MobileUI.Unlocked
+                            MobileUI.screenLockOrientation = MobileUI.Unlocked
+                            parent.lockedOrientation = MobileUI.Unlocked
                         }
                     }
                     Button {
                         text: "↓"
-                        highlighted: (parent.forcedOrientation === MobileUI.Portrait_upsidedown)
+                        highlighted: (parent.lockedOrientation === MobileUI.Portrait_upsidedown)
                         onClicked: {
-                            MobileUI.setScreenOrientation(MobileUI.Portrait_upsidedown)
-                            parent.forcedOrientation = MobileUI.Portrait_upsidedown
+                            MobileUI.screenLockOrientation = MobileUI.Portrait_upsidedown
+                            parent.lockedOrientation = MobileUI.Portrait_upsidedown
                         }
                     }
                     Button {
                         text: "→"
-                        highlighted: (parent.forcedOrientation === MobileUI.Landscape_right)
+                        highlighted: (parent.lockedOrientation === MobileUI.Landscape_right)
                         onClicked: {
-                            MobileUI.setScreenOrientation(MobileUI.Landscape_right)
-                            parent.forcedOrientation = MobileUI.Landscape_right
+                            MobileUI.screenLockOrientation = MobileUI.Landscape_right
+                            parent.lockedOrientation = MobileUI.Landscape_right
                         }
                     }
                 }
+
+                ////
 
                 Button {
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -420,14 +428,18 @@ Window {
                     highlighted: appWindow.showSafeAreas
                     onClicked: appWindow.showSafeAreas = !appWindow.showSafeAreas
                 }
+
+                ////
             }
 
-            ////
+            ////////
 
             Column {
                 width: (appWindow.screenOrientation == Qt.PortraitOrientation)
                         ? appWindow.width : appWindow.width / 2
                 spacing: 8
+
+                ////
 
                 Button {
                     id: deviceThemeButton
@@ -435,6 +447,8 @@ Window {
 
                     text: "device theme (%1)".arg(MobileUI.deviceTheme ? "dark" : "light")
                 }
+
+                ////
 
                 Row {
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -450,13 +464,14 @@ Window {
                         }
                     }
                     Button {
-
                         visible: !(Qt.platform.os === "ios" && MobileUI.isTablet)
 
-                        text: "vibrate"
-                        onClicked: MobileUI.vibrate()
+                        text: "haptic feedback"
+                        onClicked: MobileUI.hapticFeedback()
                     }
                 }
+
+                ////
 
                 Row {
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -465,23 +480,42 @@ Window {
                     Button {
                         id: screenBrightnessButton
                         text: "brightness (" + MobileUI.screenBrightness + ")"
-                        onClicked: text = "brightness (" + MobileUI.screenBrightness + ")"
+                        onClicked: MobileUI.screenBrightness = -1
                     }
 
                     Slider {
                         from: 0
                         to: 100
                         value: MobileUI.screenBrightness
-                        onMoved: {
-                            MobileUI.screenBrightness = value
-                            screenBrightnessButton.text = "brightness (" + MobileUI.screenBrightness + ")"
-                        }
+                        onMoved: MobileUI.screenBrightness = value
                     }
                 }
+
+                ////
+
+                Row {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    spacing: 8
+
+                    visible: (Qt.platform.os === "ios")
+
+                    Button {
+                        text: "badge +1 (%1)".arg(MobileUI.iconBadgeNumber)
+                        onClicked: MobileUI.iconBadgeNumber = MobileUI.iconBadgeNumber + 1
+                    }
+                    Button {
+                        text: "clear badge"
+                        onClicked: MobileUI.iconBadgeNumber = 0
+                    }
+                }
+
+                ////
             }
+
+            ////////
         }
 
-        ////////
+        ////////////////
 
         Column {
             anchors.left: parent.left
@@ -491,6 +525,8 @@ Window {
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 16
             spacing: 8
+
+            ////
 
             Row {
                 anchors.right: parent.right
@@ -511,6 +547,8 @@ Window {
                 }
             }
 
+            ////
+
             Row {
                 anchors.right: parent.right
                 spacing: 8
@@ -528,6 +566,8 @@ Window {
                     opacity: 0.1
                 }
             }
+
+            ////
 
             ComboBox { // this combobox handle the navigation bar color+theme
                 anchors.left: parent.left
@@ -548,9 +588,11 @@ Window {
                     MobileUI.navbarColor = currentText
                 }
             }
+
+            ////
         }
 
-        ////////
+        ////////////////
     }
 
     ////////////////////////////////////////////////////////////////////////////
