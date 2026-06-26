@@ -658,6 +658,9 @@ Window {
                 anchors.right: parent.right
                 spacing: 8
 
+                visible: (appWindow.windowmode != 2 &&
+                          (Qt.platform.os === "android" && androidSdkVersion >= 35))
+
                 Text {
                     anchors.verticalCenter: parent.verticalCenter
                     text: "System bar colors disabled on Android 15+"
@@ -666,9 +669,6 @@ Window {
                 Text {
                     width: 16
                     height: 16
-
-                    visible: (appWindow.windowmode != 2 &&
-                              (Qt.platform.os === "android" && androidSdkVersion >= 35))
 
                     text: "⚠"
                     color: "orange"
