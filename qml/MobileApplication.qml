@@ -13,7 +13,7 @@ Window {
     visible: true
     color: "#eee"
 
-    // WINDOW MODE /////////////////////////////////////////////////////////////
+    // WINDOW MODES ////////////////////////////////////////////////////////////
 
     // START IN "REGULAR" MODE
     //flags: Qt.Window
@@ -29,38 +29,6 @@ Window {
     //flags: Qt.Window | Qt.MaximizeUsingFullscreenGeometryHint
     //visibility: Window.FullScreen
     //property int windowmode: 2
-
-    // WINDOW ORIENTATION //////////////////////////////////////////////////////
-
-    // 1 = Qt.PortraitOrientation, 2 = Qt.LandscapeOrientation
-    // 4 = Qt.InvertedPortraitOrientation, 8 = Qt.InvertedLandscapeOrientation
-    property int screenOrientation: Screen.primaryOrientation
-    property int screenOrientationFull: Screen.orientation
-
-    // SAFE AREAS //////////////////////////////////////////////////////////////
-
-    property bool showSafeAreas: true
-
-    property bool showHapticFeedbacks: false
-
-    ////////////////////////////////////////////////////////////////////////////
-
-    // MobileUI is a QML singleton, so it cannot (and should not) be instantiated.
-    // Access its properties directly as MobileUI.*, set the initial bar colors imperatively,
-    // and react to its signals through a Connections blocks or regular QML bindings.
-
-    Component.onCompleted: {
-        MobileUI.statusbarColor = "transparent"
-        MobileUI.statusbarTheme = MobileUI.Dark
-
-        MobileUI.navbarColor = "transparent"
-        MobileUI.navbarTheme = MobileUI.Dark
-    }
-
-    Connections {
-        target: MobileUI
-        function onSafeAreaUpdated() { appWindow.printSafeAreas() }
-    }
 
     function setRegular() {
         if (Qt.platform.os === "android") { // hacks
@@ -106,10 +74,53 @@ Window {
         }
     }
 
+    // WINDOW ORIENTATION //////////////////////////////////////////////////////
+
+    // 1 = Qt.PortraitOrientation, 2 = Qt.LandscapeOrientation
+    // 4 = Qt.InvertedPortraitOrientation, 8 = Qt.InvertedLandscapeOrientation
+    property int screenOrientation: Screen.primaryOrientation
+    property int screenOrientationFull: Screen.orientation
+
+    // MOBILE UI ///////////////////////////////////////////////////////////////
+
+    // MobileUI is a QML singleton, so it cannot be instantiated.
+    // Access its properties directly as MobileUI.*, set the initial bar colors imperatively,
+    // and react to its signals through a Connections blocks or regular QML bindings.
+
+    Component.onCompleted: {
+        MobileUI.statusbarColor = "transparent"
+        MobileUI.statusbarTheme = MobileUI.Auto
+
+        MobileUI.navbarColor = "transparent"
+        MobileUI.navbarTheme = MobileUI.Auto
+    }
+
+    Connections {
+        target: MobileUI
+        function onStatusbarUpdated() { appWindow.printSettings() }
+        function onNavbarUpdated() { appWindow.printSettings() }
+        function onSafeAreaUpdated() { appWindow.printSafeAreas() }
+    }
+
+    function printSettings() {
+        console.log("> printSettings()")
+        console.log("- window mode:         " + appWindow.visibility)
+        console.log("- window flags:        " + appWindow.flags)
+
+        console.log("- statusbar color:     " + MobileUI.statusbarColor)
+        console.log("- statusbar (content): " + MobileUI.statusbarContentColor)
+        console.log("- statusbar theme:     " + MobileUI.statusbarTheme)
+
+        console.log("- navbar color:        " + MobileUI.navbarColor)
+        console.log("- navbar (content):    " + MobileUI.navbarContentColor)
+        console.log("- navbar theme:        " + MobileUI.navbarTheme)
+    }
+
     function printSafeAreas() {
         console.log("> printSafeAreas()")
         console.log("- window mode:         " + appWindow.visibility)
         console.log("- window flags:        " + appWindow.flags)
+
         console.log("- screen dpi:          " + Screen.devicePixelRatio)
         console.log("- screen width:        " + Screen.width)
         console.log("- screen width avail:  " + Screen.desktopAvailableWidth)
@@ -117,8 +128,10 @@ Window {
         console.log("- screen height avail: " + Screen.desktopAvailableHeight)
         console.log("- screen orientation (full):    " + Screen.orientation)
         console.log("- screen orientation (primary): " + Screen.primaryOrientation)
+        console.log("- screen orientation (locked): " + MobileUI.screenLockOrientation)
         console.log("- statusbarHeight: " + MobileUI.statusbarHeight)
         console.log("- navbarHeight:    " + MobileUI.navbarHeight)
+        console.log("- keyboardHeight:    " + MobileUI.keyboardHeight)
         console.log("- safeAreaTop:     " + MobileUI.safeAreaTop)
         console.log("- safeAreaLeft:    " + MobileUI.safeAreaLeft)
         console.log("- safeAreaRight:   " + MobileUI.safeAreaRight)
@@ -155,6 +168,10 @@ Window {
     }
 
     ////////////////////////////////////////////////////////////////////////////
+
+    property bool showSafeAreas: true
+
+    property bool showHapticFeedbacks: false
 
     Item {
         id: safeAreas
@@ -216,7 +233,8 @@ Window {
 
         visible: appWindow.showSafeAreas
 
-        Rectangle { // alwayse on top, otherwise part of the safeAreas
+        // Visualization bars // always on top, otherwise part of the safeAreas
+        Rectangle {
             id: statusbarVis
             anchors.top: parent.top
             anchors.left: parent.left
@@ -226,7 +244,7 @@ Window {
             color: "blue"
             opacity: 0.1
         }
-        Rectangle { // always on bottom, otherwise part of the safeAreas
+        Rectangle {
             id: navbarVis
             anchors.left: parent.left
             anchors.right: parent.right
@@ -237,7 +255,8 @@ Window {
             opacity: 0.1
         }
 
-        Rectangle { // with Android API 35+, the actual status bar can't be colored anymore, this is an underlay backup
+        // Underlay backups // With Android API 35+, the system bars can't be colored anymore
+        Rectangle {
             id: statusbarUnderlay
             anchors.top: parent.top
             anchors.left: parent.left
@@ -247,11 +266,21 @@ Window {
             height: MobileUI.statusbarHeight
             color: "transparent"
         }
+        Rectangle {
+            id: navbarUnderlay
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+
+            visible: (Qt.platform.os === "ios" || appWindow.windowmode === 1)
+            height: MobileUI.navbarHeight
+            color: "transparent"
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////
 
-    FocusScope {
+    Item {
         id: appContent
 
         anchors.top: parent.top
@@ -298,7 +327,11 @@ Window {
 
             onActivated: {
                 MobileUI.statusbarColor = currentText
-                statusbarUnderlay.color = currentText
+
+                if (Qt.platform.os === "android" && androidSdkVersion >= 35) {
+                    MobileUI.statusbarContentColor = currentText
+                    statusbarUnderlay.color = currentText
+                }
             }
         }
 
@@ -621,13 +654,36 @@ Window {
                 }
             }
 
+            Row {
+                anchors.right: parent.right
+                spacing: 8
+
+                Text {
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: "System bar colors disabled on Android 15+"
+                    color: "orange"
+                }
+                Text {
+                    width: 16
+                    height: 16
+
+                    visible: (appWindow.windowmode != 2 &&
+                              (Qt.platform.os === "android" && androidSdkVersion >= 35))
+
+                    text: "⚠"
+                    color: "orange"
+                    horizontalAlignment: Qt.AlignHCenter
+                    verticalAlignment: Qt.AlignVCenter
+                }
+            }
+
             ////
 
             ComboBox { // this combobox handle the navigation bar color+theme
                 anchors.left: parent.left
                 anchors.right: parent.right
 
-                visible: (appWindow.windowmode === 0 && Qt.platform.os === "android")
+                visible: (appWindow.windowmode != 2 && Qt.platform.os === "android")
 
                 model: ListModel {
                     id: cbNavbarColor
@@ -640,6 +696,11 @@ Window {
 
                 onActivated: {
                     MobileUI.navbarColor = currentText
+
+                    if (Qt.platform.os === "android" && androidSdkVersion >= 35) {
+                        MobileUI.navbarContentColor = currentText
+                        navbarUnderlay.color = currentText
+                    }
                 }
             }
 
