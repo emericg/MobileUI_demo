@@ -84,18 +84,42 @@ Window {
     // MOBILE UI ///////////////////////////////////////////////////////////////
 
     // MobileUI is a QML singleton, so it cannot be instantiated.
-    // Access its properties directly as MobileUI.*, set the initial bar colors imperatively,
-    // and react to its signals through a Connections blocks or regular QML bindings.
-
-    Component.onCompleted: {
+    // You can use it many different ways:
+    // - Directly from your C++ code
+    // - With a 'MobileUI_dispatcher {}' QML item
+    // - Through QML bindings, if you want dynamic colors/theme
+    // - Access its properties directly through the QML singleton
+    //   - set the initial values imperatively 'MobileUI.statusbarColor = "blue"'
+    //   - react to its signals through a 'Connections' block
+/*
+    // using our QML dispatcher
+    MobileUI_dispatcher {
+        statusbarColor: "transparent"
+        statusbarTheme: MobileUI.Auto
+        navbarColor: "transparent"
+        navbarTheme: MobileUI.Auto
+    }
+*/
+/*
+    // using QML binding
+    Binding { target: MobileUI; property: "navbarTheme"; value: MobileUI.Dark; }
+    Binding {
+        target: MobileUI
+        property: "navbarColor"
+        value: {
+            if (appContent.state === "ScreenTutorial") return Theme.colorHeader
+            return Theme.colorBackground
+        }
+    }
+*/
+    Component.onCompleted: { // using the QML singleton
         MobileUI.statusbarColor = "transparent"
         MobileUI.statusbarTheme = MobileUI.Auto
-
         MobileUI.navbarColor = "transparent"
         MobileUI.navbarTheme = MobileUI.Auto
     }
 
-    Connections {
+    Connections { // reacting through a Connections block
         target: MobileUI
         function onStatusbarUpdated() { appWindow.printSettings() }
         function onNavbarUpdated() { appWindow.printSettings() }
@@ -138,7 +162,7 @@ Window {
         console.log("- safeAreaBottom:  " + MobileUI.safeAreaBottom)
     }
 
-    ////////////////////////////////////////////////////////////////////////////
+    // MOBILE UI ///////////////////////////////////////////////////////////////
 
     Connections {
         target: Qt.application
@@ -255,7 +279,8 @@ Window {
             opacity: 0.1
         }
 
-        // Underlay backups // With Android API 35+, the system bars can't be colored anymore
+        // System bars // Underlay backups
+        // With Android API 35+, the system bars can't be colored anymore
         Rectangle {
             id: statusbarUnderlay
             anchors.top: parent.top
@@ -347,7 +372,7 @@ Window {
                 anchors.horizontalCenter: parent.horizontalCenter
                 width: appContent.width * 0.75
 
-                text: "MobileUI doesn't do much when used on a desktop OS.<br>" +
+                text: "MobileUI doesn't do much when used on a desktop OS." + "<br>" +
                       "Every function and variables are available and can be used without " +
                       "conditional checks, but without any functionality behind them."
 
@@ -578,24 +603,6 @@ Window {
                     }
                 }
 */
-                ////
-
-                Row {
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    spacing: 8
-
-                    visible: (Qt.platform.os === "ios")
-
-                    Button {
-                        text: "badge +1 (%1)".arg(MobileUI.iconBadgeNumber)
-                        onClicked: MobileUI.iconBadgeNumber = MobileUI.iconBadgeNumber + 1
-                    }
-                    Button {
-                        text: "clear badge"
-                        onClicked: MobileUI.iconBadgeNumber = 0
-                    }
-                }
-
                 ////
             }
 

@@ -6,9 +6,6 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTOMOC ON)
 
-set(APP_NAME ${PROJECT_NAME})
-set(APP_VERSION ${PROJECT_VERSION})
-
 ################################################################################
 
 message(STATUS ">>> BUILDING ${PROJECT_NAME} v${PROJECT_VERSION} >>>")
@@ -103,7 +100,7 @@ endif()
 
 # Output (build)
 set_target_properties(${PROJECT_NAME} PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_INSTALL_BINDIR}"
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_INSTALL_BINDIR}
 )
 
 # Output (install)
