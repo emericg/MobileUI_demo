@@ -35,6 +35,6 @@ $ cmake --build build/
 
 ## License
 
-The MobileUI_demo project, just like the MobileUI module, is licensed under the [MIT license](LICENSE).
+The MobileUI_demo project, just like the MobileUI module, is licensed under the [MIT license](LICENSE.md).
 
-> Emeric Grange <emeric.grange@gmail.com>
+> Copyright (c) Emeric Grange <emeric.grange@gmail.com>
