@@ -280,7 +280,7 @@ Window {
         }
 
         // System bars // Underlay backups
-        // With Android API 35+, the system bars can't be colored anymore
+        // When the system bars can't be colored (see MobileUI.systemBarColorsSupported)
         Rectangle {
             id: statusbarUnderlay
             anchors.top: parent.top
@@ -309,13 +309,13 @@ Window {
         id: appContent
 
         anchors.top: parent.top
-        anchors.topMargin: Math.max(MobileUI.safeAreaTop, MobileUI.statusbarHeight)
+        anchors.topMargin: MobileUI.safeAreaTop
         anchors.left: parent.left
         anchors.leftMargin: MobileUI.safeAreaLeft
         anchors.right: parent.right
         anchors.rightMargin: MobileUI.safeAreaRight
         anchors.bottom: parent.bottom
-        anchors.bottomMargin: Math.max(MobileUI.safeAreaBottom, MobileUI.navbarHeight)
+        anchors.bottomMargin: MobileUI.safeAreaBottom
 
         Keys.onBackPressed: {
             MobileUI.backToHomeScreen()
@@ -353,7 +353,7 @@ Window {
             onActivated: {
                 MobileUI.statusbarColor = currentText
 
-                if (Qt.platform.os === "android" && androidSdkVersion >= 35) {
+                if (!MobileUI.systemBarColorsSupported) {
                     MobileUI.statusbarContentColor = currentText
                     statusbarUnderlay.color = currentText
                 }
@@ -435,47 +435,51 @@ Window {
                     anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 8
 
-                    property int lockedOrientation: MobileUI.Unlocked
-
                     Button {
                         text: "←"
-                        highlighted: (parent.lockedOrientation === MobileUI.Landscape_left)
-                        onClicked: {
-                            MobileUI.screenLockOrientation = MobileUI.Landscape_left
-                            parent.lockedOrientation = MobileUI.Landscape_left
-                        }
+                        highlighted: (MobileUI.screenLockOrientation === MobileUI.Landscape_left)
+                        onClicked: MobileUI.screenLockOrientation = MobileUI.Landscape_left
                     }
                     Button {
                         text: "↑"
-                        highlighted: (parent.lockedOrientation === MobileUI.Portrait)
-                        onClicked: {
-                            MobileUI.screenLockOrientation = MobileUI.Portrait
-                            parent.lockedOrientation = MobileUI.Portrait
-                        }
+                        highlighted: (MobileUI.screenLockOrientation === MobileUI.Portrait)
+                        onClicked: MobileUI.screenLockOrientation = MobileUI.Portrait
                     }
                     Button {
                         text: "auto"
-                        highlighted: (parent.lockedOrientation === MobileUI.Unlocked)
-                        onClicked: {
-                            MobileUI.screenLockOrientation = MobileUI.Unlocked
-                            parent.lockedOrientation = MobileUI.Unlocked
-                        }
+                        highlighted: (MobileUI.screenLockOrientation === MobileUI.Unlocked)
+                        onClicked: MobileUI.screenLockOrientation = MobileUI.Unlocked
                     }
                     Button {
                         text: "↓"
-                        highlighted: (parent.lockedOrientation === MobileUI.Portrait_upsidedown)
-                        onClicked: {
-                            MobileUI.screenLockOrientation = MobileUI.Portrait_upsidedown
-                            parent.lockedOrientation = MobileUI.Portrait_upsidedown
-                        }
+                        highlighted: (MobileUI.screenLockOrientation === MobileUI.Portrait_upsidedown)
+                        onClicked: MobileUI.screenLockOrientation = MobileUI.Portrait_upsidedown
                     }
                     Button {
                         text: "→"
-                        highlighted: (parent.lockedOrientation === MobileUI.Landscape_right)
-                        onClicked: {
-                            MobileUI.screenLockOrientation = MobileUI.Landscape_right
-                            parent.lockedOrientation = MobileUI.Landscape_right
-                        }
+                        highlighted: (MobileUI.screenLockOrientation === MobileUI.Landscape_right)
+                        onClicked: MobileUI.screenLockOrientation = MobileUI.Landscape_right
+                    }
+                }
+
+                Row {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    spacing: 8
+
+                    Button {
+                        text: "↑↓"
+                        highlighted: (MobileUI.screenLockOrientation === MobileUI.Portrait_sensor)
+                        onClicked: MobileUI.screenLockOrientation = MobileUI.Portrait_sensor
+                    }
+                    Button {
+                        text: "lock"
+                        highlighted: (MobileUI.screenLockOrientation === MobileUI.Locked)
+                        onClicked: MobileUI.screenLockOrientation = MobileUI.Locked
+                    }
+                    Button {
+                        text: "←→"
+                        highlighted: (MobileUI.screenLockOrientation === MobileUI.Landscape_sensor)
+                        onClicked: MobileUI.screenLockOrientation = MobileUI.Landscape_sensor
                     }
                 }
 
@@ -505,7 +509,7 @@ Window {
                     id: deviceThemeButton
                     anchors.horizontalCenter: parent.horizontalCenter
 
-                    text: "device theme (%1)".arg(MobileUI.deviceTheme ? "dark" : "light")
+                    text: "device theme (%1)".arg(MobileUI.deviceTheme === MobileUI.Dark ? "dark" : "light")
                 }
 
                 ////
@@ -666,11 +670,11 @@ Window {
                 spacing: 8
 
                 visible: (appWindow.windowmode != 2 &&
-                          (Qt.platform.os === "android" && androidSdkVersion >= 35))
+                          (Qt.platform.os === "android" && !MobileUI.systemBarColorsSupported))
 
                 Text {
                     anchors.verticalCenter: parent.verticalCenter
-                    text: "System bar colors disabled on Android 15+"
+                    text: "System bar colors disabled (edge-to-edge enforced)"
                     color: "orange"
                 }
                 Text {
@@ -704,7 +708,7 @@ Window {
                 onActivated: {
                     MobileUI.navbarColor = currentText
 
-                    if (Qt.platform.os === "android" && androidSdkVersion >= 35) {
+                    if (!MobileUI.systemBarColorsSupported) {
                         MobileUI.navbarContentColor = currentText
                         navbarUnderlay.color = currentText
                     }
